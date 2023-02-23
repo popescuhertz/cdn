@@ -118,7 +118,7 @@ const observeElements = () => {
   });
 };
 
-const debouncedObserveElements = debounce(observeElements, 50);
+const debouncedObserveElements = debounce(observeElements, 200);
 
 window.addEventListener("load", debouncedObserveElements);
 window.addEventListener("resize", debouncedObserveElements); // Reobserve elements on window resize
