@@ -63,29 +63,35 @@ const truncateText = (element) => {
       container.innerHTML = truncatedText + "...";
     }
 
-    const showMoreBtn = document.createElement("button");
-    showMoreBtn.classList.add("show-more");
-    showMoreBtn.textContent = "Show More";
-    element.appendChild(showMoreBtn);
+    const showMoreBtn = element.querySelector(".show-more");
+    const showLessBtn = element.querySelector(".show-less");
+    const shouldShowButtons = container.offsetHeight < fullContainerHeight;
 
-    const showLessBtn = document.createElement("button");
-    showLessBtn.classList.add("show-less");
-    showLessBtn.textContent = "Show Less";
-    element.appendChild(showLessBtn);
-
-    showLessBtn.style.display = "none";
-
-    showMoreBtn.addEventListener("click", () => {
-      container.innerHTML = text;
-      showMoreBtn.style.display = "none";
-      showLessBtn.style.display = "inline";
-    });
-
-    showLessBtn.addEventListener("click", () => {
-      container.innerHTML = truncatedText + "...";
-      showMoreBtn.style.display = "inline";
+    if (showMoreBtn && showLessBtn) {
+      showMoreBtn.style.display = shouldShowButtons ? "inline" : "none";
       showLessBtn.style.display = "none";
-    });
+
+      showMoreBtn.addEventListener("click", () => {
+        container.innerHTML = text;
+        showMoreBtn.style.display = "none";
+        showLessBtn.style.display = "inline";
+      });
+
+      showLessBtn.addEventListener("click", () => {
+        container.innerHTML = truncatedText + "...";
+        showMoreBtn.style.display = "inline";
+        showLessBtn.style.display = "none";
+      });
+    } else {
+      container.innerHTML = truncatedText + "...";
+    }
+  } else {
+    const showMoreBtn = element.querySelector(".show-more");
+    const showLessBtn = element.querySelector(".show-less");
+    if (showMoreBtn && showLessBtn) {
+      showMoreBtn.style.display = "none";
+      showLessBtn.style.display = "none";
+    }
   }
 };
 
@@ -105,11 +111,16 @@ const observer = new IntersectionObserver(
   { root: null, threshold: 0 }
 );
 
-const observeElements = () => {
+const observeElements = debounce(() => {
   document.querySelectorAll("[data-max-lines]").forEach((element) => {
-    truncateText(element);
-    element.dataset.truncated = true;
+    // Check if the element is already truncated
+    if (element.dataset.truncated) {
+      return;
+    }
   });
-};
+}, 50);
 
+// Add event listeners to trigger the observeElements function on relevant events
 window.addEventListener("load", observeElements);
+window.addEventListener("resize", observeElements);
+window.addEventListener("scroll", observeElements);
