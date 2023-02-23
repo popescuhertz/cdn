@@ -84,13 +84,28 @@ const truncateText = (element) => {
   }
 };
 
-const truncateAllElements = () => {
+const observer = new IntersectionObserver(
+  (entries) => {
+    entries.forEach((entry) => {
+      if (entry.isIntersecting) {
+        if (entry.target.dataset.truncated) {
+          return;
+        }
+        truncateText(entry.target);
+        entry.target.dataset.truncated = true;
+        observer.unobserve(entry.target);
+      }
+    });
+  },
+  { root: null, threshold: 0.5 }
+);
+
+const observeElements = () => {
   document.querySelectorAll("[data-max-lines]").forEach((element) => {
-    truncateText(element);
+    observer.observe(element);
   });
 };
 
-const debouncedTruncateAllElements = debounce(truncateAllElements, 100);
+const debouncedObserveElements = debounce(observeElements, 50);
 
-window.addEventListener("load", debouncedTruncateAllElements);
-window.addEventListener("resize", debouncedTruncateAllElements);
+window.addEventListener("load", debouncedObserveElements);
