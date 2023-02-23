@@ -125,7 +125,7 @@ const observeElements = () => {
         element.dataset.truncated = true;
       }
     });
-  }, 1000); // Wait for 1 second before truncating all elements
+  }, 100); // Wait for 1 second before truncating all elements
 };
 
 const debouncedObserveElements = debounce(observeElements, 50);
