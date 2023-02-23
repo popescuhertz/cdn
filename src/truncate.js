@@ -109,7 +109,7 @@ const observer = new IntersectionObserver(
       }
     });
   },
-  { rootMargin: "-200px 0px" } // Lazy load 200px before element comes into view
+  { rootMargin: "-100vh 0px" } // Lazy load 200px before element comes into view
 );
 
 const observeElements = () => {
