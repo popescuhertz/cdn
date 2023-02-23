@@ -1,15 +1,3 @@
-const debounce = (func, delay) => {
-  let timeoutId;
-  return (...args) => {
-    if (timeoutId) {
-      clearTimeout(timeoutId);
-    }
-    timeoutId = setTimeout(() => {
-      func(...args);
-    }, delay);
-  };
-};
-
 const lineHeightCache = new Map();
 
 const getLineHeight = (element) => {
@@ -95,12 +83,6 @@ const truncateText = (element) => {
   }
 };
 
-const intersectionObserverConfig = {
-  root: null,
-  rootMargin: "200px",
-  threshold: 0,
-};
-
 const observer = new IntersectionObserver(
   (entries) => {
     entries.forEach((entry) => {
@@ -111,32 +93,10 @@ const observer = new IntersectionObserver(
         truncateText(entry.target);
         entry.target.dataset.truncated = true;
         observer.unobserve(entry.target);
-        // Check if element is close to viewport
-        const intersectionRatio = entry.intersectionRatio;
-        const isCloseToViewport =
-          intersectionRatio > 0 && intersectionRatio < 1;
-
-        // If element is close to viewport, truncate immediately
-        if (isCloseToViewport) {
-          truncateText(entry.target);
-          entry.target.dataset.truncated = true;
-          observer.unobserve(entry.target);
-        } else {
-          // Otherwise, debounce the truncation to occur 200px before element comes into viewport
-          debounce(
-            () => {
-              truncateText(entry.target);
-              entry.target.dataset.truncated = true;
-              observer.unobserve(entry.target);
-            },
-            50,
-            { leading: true, trailing: false, maxWait: 200 }
-          )();
-        }
       }
     });
   },
-  { rootMargin: "200px 0px", threshold: 0 }
+  { root: null, threshold: 0 }
 );
 
 const observeElements = () => {
@@ -146,6 +106,3 @@ const observeElements = () => {
 };
 
 window.addEventListener("load", observeElements);
-
-// Update observer when window is resized
-window.addEventListener("resize", debounce(observeElements, 50));
