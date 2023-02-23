@@ -1,83 +1,95 @@
+const debounce = (func, delay) => {
+  let timeoutId;
+  return (...args) => {
+    if (timeoutId) {
+      clearTimeout(timeoutId);
+    }
+    timeoutId = setTimeout(() => {
+      func(...args);
+    }, delay);
+  };
+};
+
+const getLineHeight = (element) => {
+  const cacheKey = element.tagName + element.className;
+  const cachedLineHeight = element.dataset.lineHeight;
+  if (cachedLineHeight) {
+    return parseFloat(cachedLineHeight);
+  }
+  const lineHeight = parseFloat(getComputedStyle(element).lineHeight);
+  element.dataset.lineHeight = lineHeight;
+  return lineHeight;
+};
+
+const binarySearch = (arr, target, comparator) => {
+  let left = 0;
+  let right = arr.length - 1;
+  while (left <= right) {
+    const mid = Math.floor((left + right) / 2);
+    const comparisonResult = comparator(target, arr[mid]);
+    if (comparisonResult === 0) {
+      return mid;
+    } else if (comparisonResult < 0) {
+      right = mid - 1;
+    } else {
+      left = mid + 1;
+    }
+  }
+  return right;
+};
+
 const truncateText = (element) => {
   const container = element.querySelector("p, h2, h3, h4, h5, h6, div, span");
   if (!container) return;
 
-  const text = container.innerHTML.trim();
-  let maxLines;
-
-  if (window.innerWidth < 768) {
-    maxLines =
-      parseInt(element.getAttribute("data-max-lines-mobile")) ||
-      parseInt(element.getAttribute("data-max-lines")) ||
-      Infinity;
-  } else if (window.innerWidth < 1024) {
-    maxLines =
-      parseInt(element.getAttribute("data-max-lines-tablet")) ||
-      parseInt(element.getAttribute("data-max-lines")) ||
-      Infinity;
-  } else {
-    maxLines =
-      parseInt(element.getAttribute("data-max-lines-desktop")) ||
-      parseInt(element.getAttribute("data-max-lines")) ||
-      Infinity;
-  }
+  const text = container.innerHTML;
+  const targetHeight = parseInt(element.dataset.maxHeight);
+  if (!targetHeight) return;
 
   const lineHeight = getLineHeight(container);
-  const maxContainerHeight = lineHeight * maxLines;
+  const maxLines = Math.floor(targetHeight / lineHeight);
 
-  container.style.height = "auto";
-  const fullContainerHeight = container.offsetHeight;
-  container.style.height = "";
+  if (maxLines >= container.offsetHeight / lineHeight) return;
 
-  if (fullContainerHeight > maxContainerHeight) {
-    // Perform a binary search to find the maximum number of characters
-    // that can be shown within the available space.
-    let start = 0;
-    let end = text.length - 1;
-    let mid;
-
-    while (start <= end) {
-      mid = Math.floor((start + end) / 2);
-      container.innerHTML = text.substring(0, mid) + "...";
-
-      if (container.offsetHeight > maxContainerHeight) {
-        end = mid - 1;
-      } else {
-        start = mid + 1;
-      }
-    }
-
-    // Show the truncated text.
-    container.innerHTML = text.substring(0, end) + "...";
-
-    const showMoreBtn = element.querySelector(".show-more");
-    const showLessBtn = element.querySelector(".show-less");
-    const shouldShowButtons = container.offsetHeight < fullContainerHeight;
-
-    if (showMoreBtn && showLessBtn) {
-      showMoreBtn.style.display = shouldShowButtons ? "inline" : "none";
-      showLessBtn.style.display = "none";
-
-      showMoreBtn.addEventListener("click", () => {
-        container.innerHTML = text;
-        showMoreBtn.style.display = "none";
-        showLessBtn.style.display = "inline";
-      });
-
-      showLessBtn.addEventListener("click", () => {
-        container.innerHTML = text.substring(0, end) + "...";
-        showMoreBtn.style.display = "inline";
-        showLessBtn.style.display = "none";
-      });
+  let left = 0;
+  let right = text.length - 1;
+  let mid;
+  let lastMid;
+  while (left <= right) {
+    lastMid = mid;
+    mid = Math.floor((left + right) / 2);
+    container.innerHTML = text.slice(0, mid) + "...";
+    if (container.offsetHeight <= targetHeight) {
+      left = mid + 1;
     } else {
-      container.innerHTML = text.substring(0, end) + "...";
-    }
-  } else {
-    const showMoreBtn = element.querySelector(".show-more");
-    const showLessBtn = element.querySelector(".show-less");
-    if (showMoreBtn && showLessBtn) {
-      showMoreBtn.style.display = "none";
-      showLessBtn.style.display = "none";
+      right = mid - 1;
     }
   }
+  container.innerHTML = text.slice(0, lastMid) + "...";
 };
+
+const observer = new IntersectionObserver(
+  (entries) => {
+    entries.forEach((entry) => {
+      if (entry.isIntersecting) {
+        if (entry.target.dataset.truncated) {
+          return;
+        }
+        truncateText(entry.target);
+        entry.target.dataset.truncated = true;
+        observer.unobserve(entry.target);
+      }
+    });
+  },
+  { root: null, threshold: 0 }
+);
+
+const observeElements = () => {
+  document.querySelectorAll("[data-max-height]").forEach((element) => {
+    observer.observe(element);
+  });
+};
+
+const debouncedObserveElements = debounce(observeElements, 50);
+
+window.addEventListener("load", debouncedObserveElements);
