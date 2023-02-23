@@ -1,75 +1,63 @@
+const truncateText = (element) => {
+  const container = element.querySelector("p, h2, h3, h4, h5, h6, div, span");
+  if (!container) return;
+
+  const text = container.innerHTML.trim();
+
+  const maxLines = parseInt(element.dataset.maxLines) || Infinity;
+  const lineHeight = parseFloat(getComputedStyle(container).lineHeight);
+  const maxContainerHeight = lineHeight * maxLines;
+
+  container.style.height = "auto";
+  const fullContainerHeight = container.offsetHeight;
+  container.style.height = "";
+
+  if (fullContainerHeight > maxContainerHeight) {
+    let truncatedText = text.slice(0, -1);
+    while (
+      container.offsetHeight > maxContainerHeight &&
+      truncatedText.length > 0
+    ) {
+      truncatedText = truncatedText.slice(0, -1);
+    }
+    container.innerHTML = truncatedText.trim() + "...";
+
+    const showMoreBtn = element.querySelector(".show-more");
+    const showLessBtn = element.querySelector(".show-less");
+    if (showMoreBtn && showLessBtn) {
+      showMoreBtn.style.display = "inline";
+      showLessBtn.style.display = "none";
+
+      showMoreBtn.addEventListener("click", () => {
+        container.innerHTML = text + "...";
+        showMoreBtn.style.display = "none";
+        showLessBtn.style.display = "inline";
+      });
+
+      showLessBtn.addEventListener("click", () => {
+        container.innerHTML = truncatedText.trim() + "...";
+        showMoreBtn.style.display = "inline";
+        showLessBtn.style.display = "none";
+      });
+    }
+  } else {
+    const showMoreBtn = element.querySelector(".show-more");
+    const showLessBtn = element.querySelector(".show-less");
+    if (showMoreBtn && showLessBtn) {
+      showMoreBtn.style.display = "none";
+      showLessBtn.style.display = "none";
+    }
+  }
+};
+
 const observer = new IntersectionObserver(
   (entries) => {
     entries.forEach((entry) => {
       if (entry.isIntersecting) {
-        const container = entry.target.querySelector(
-          "p, h2, h3, h4, h5, h6, div, span"
-        );
-        if (!container) return;
-
-        const maxLines =
-          window.innerWidth < 768
-            ? parseInt(entry.target.getAttribute("data-max-lines-mobile")) ||
-              parseInt(entry.target.getAttribute("data-max-lines")) ||
-              Infinity
-            : window.innerWidth < 1024
-            ? parseInt(entry.target.getAttribute("data-max-lines-tablet")) ||
-              parseInt(entry.target.getAttribute("data-max-lines")) ||
-              Infinity
-            : parseInt(entry.target.getAttribute("data-max-lines-desktop")) ||
-              parseInt(entry.target.getAttribute("data-max-lines")) ||
-              Infinity;
-
-        const lineHeight = parseFloat(getComputedStyle(container).lineHeight);
-        const maxContainerHeight = lineHeight * maxLines;
-
-        container.style.height = "auto";
-        const fullContainerHeight = container.offsetHeight;
-        container.style.height = "";
-
-        if (fullContainerHeight > maxContainerHeight) {
-          let truncatedText = container.innerHTML;
-          while (
-            container.offsetHeight > maxContainerHeight &&
-            truncatedText.length > 0
-          ) {
-            truncatedText = truncatedText.slice(0, -1);
-            container.innerHTML = truncatedText + "...";
-          }
-
-          const showMoreBtn = entry.target.querySelector(".show-more");
-          const showLessBtn = entry.target.querySelector(".show-less");
-          const shouldShowButtons =
-            container.offsetHeight < fullContainerHeight;
-
-          if (showMoreBtn && showLessBtn) {
-            showMoreBtn.style.display = shouldShowButtons ? "inline" : "none";
-            showLessBtn.style.display = "none";
-
-            showMoreBtn.addEventListener("click", () => {
-              container.innerHTML = container.dataset.fullText;
-              showMoreBtn.style.display = "none";
-              showLessBtn.style.display = "inline";
-            });
-
-            showLessBtn.addEventListener("click", () => {
-              container.innerHTML = container.dataset.truncatedText;
-              showMoreBtn.style.display = "inline";
-              showLessBtn.style.display = "none";
-            });
-          } else {
-            container.dataset.truncatedText = truncatedText + "...";
-            container.innerHTML = container.dataset.truncatedText;
-          }
-        } else {
-          const showMoreBtn = entry.target.querySelector(".show-more");
-          const showLessBtn = entry.target.querySelector(".show-less");
-          if (showMoreBtn && showLessBtn) {
-            showMoreBtn.style.display = "none";
-            showLessBtn.style.display = "none";
-          }
+        if (entry.target.dataset.truncated) {
+          return;
         }
-
+        truncateText(entry.target);
         entry.target.dataset.truncated = true;
         observer.unobserve(entry.target);
       }
@@ -78,6 +66,12 @@ const observer = new IntersectionObserver(
   { root: null, threshold: 0 }
 );
 
-document.querySelectorAll("[data-max-lines]").forEach((element) => {
-  observer.observe(element);
-});
+const observeElements = () => {
+  document.querySelectorAll("[data-max-lines]").forEach((element) => {
+    observer.observe(element);
+  });
+};
+
+const debouncedObserveElements = debounce(observeElements, 50);
+
+window.addEventListener("load", debouncedObserveElements);
