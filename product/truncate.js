@@ -63,35 +63,29 @@ const truncateText = (element) => {
       container.innerHTML = truncatedText + "...";
     }
 
-    const showMoreBtn = element.querySelector(".show-more");
-    const showLessBtn = element.querySelector(".show-less");
-    const shouldShowButtons = container.offsetHeight < fullContainerHeight;
+    const showMoreBtn = document.createElement("button");
+    showMoreBtn.classList.add("show-more");
+    showMoreBtn.textContent = "Show More";
+    element.appendChild(showMoreBtn);
 
-    if (showMoreBtn && showLessBtn) {
-      showMoreBtn.style.display = shouldShowButtons ? "inline" : "none";
-      showLessBtn.style.display = "none";
+    const showLessBtn = document.createElement("button");
+    showLessBtn.classList.add("show-less");
+    showLessBtn.textContent = "Show Less";
+    element.appendChild(showLessBtn);
 
-      showMoreBtn.addEventListener("click", () => {
-        container.innerHTML = text;
-        showMoreBtn.style.display = "none";
-        showLessBtn.style.display = "inline";
-      });
+    showLessBtn.style.display = "none";
 
-      showLessBtn.addEventListener("click", () => {
-        container.innerHTML = truncatedText + "...";
-        showMoreBtn.style.display = "inline";
-        showLessBtn.style.display = "none";
-      });
-    } else {
-      container.innerHTML = truncatedText + "...";
-    }
-  } else {
-    const showMoreBtn = element.querySelector(".show-more");
-    const showLessBtn = element.querySelector(".show-less");
-    if (showMoreBtn && showLessBtn) {
+    showMoreBtn.addEventListener("click", () => {
+      container.innerHTML = text;
       showMoreBtn.style.display = "none";
+      showLessBtn.style.display = "inline";
+    });
+
+    showLessBtn.addEventListener("click", () => {
+      container.innerHTML = truncatedText + "...";
+      showMoreBtn.style.display = "inline";
       showLessBtn.style.display = "none";
-    }
+    });
   }
 };
 
@@ -113,10 +107,9 @@ const observer = new IntersectionObserver(
 
 const observeElements = () => {
   document.querySelectorAll("[data-max-lines]").forEach((element) => {
-    observer.observe(element);
+    truncateText(element);
+    element.dataset.truncated = true;
   });
 };
 
-const debouncedObserveElements = debounce(observeElements, 50);
-
-window.addEventListener("load", debouncedObserveElements);
+window.addEventListener("load", observeElements);
