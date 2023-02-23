@@ -98,8 +98,7 @@ const truncateText = (element) => {
 const observer = new IntersectionObserver(
   (entries) => {
     entries.forEach((entry) => {
-      if (entry.isIntersecting || entry.intersectionRatio > 0) {
-        // Trigger if element is in viewport or intersects the viewport by any amount
+      if (entry.isIntersecting) {
         if (entry.target.dataset.truncated) {
           return;
         }
@@ -109,16 +108,37 @@ const observer = new IntersectionObserver(
       }
     });
   },
-  { rootMargin: "200px 0px -200px 0px" } // Lazy load 200px before element comes into view
+  { root: null, threshold: 0, rootMargin: "-200px" }
 );
 
-const observeElements = () => {
-  document.querySelectorAll("[data-max-lines]").forEach((element) => {
-    observer.observe(element);
+const elementsToObserve = document.querySelectorAll("[data-max-lines]");
+
+elementsToObserve.forEach((element) => {
+  observer.observe(element);
+  element.style.opacity = 0; // hide the element initially
+});
+
+const lazyLoad = () => {
+  elementsToObserve.forEach((element) => {
+    if (element.dataset.truncated) {
+      return;
+    }
+    const elementRect = element.getBoundingClientRect();
+    if (elementRect.top - window.innerHeight < 200) {
+      truncateText(element);
+      element.dataset.truncated = true;
+      element.style.opacity = 1; // show the element after truncation
+      observer.unobserve(element);
+    }
   });
 };
 
-const debouncedObserveElements = debounce(observeElements, 200);
+const debouncedLazyLoad = debounce(lazyLoad, 50);
 
-window.addEventListener("load", debouncedObserveElements);
-window.addEventListener("resize", debouncedObserveElements); // Reobserve elements on window resize
+window.addEventListener("load", () => {
+  observeElements();
+  debouncedLazyLoad();
+});
+
+window.addEventListener("scroll", debouncedLazyLoad);
+window.addEventListener("resize", debouncedLazyLoad);
