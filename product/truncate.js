@@ -1,7 +1,9 @@
 const debounce = (func, delay) => {
   let timeoutId;
   return (...args) => {
-    clearTimeout(timeoutId);
+    if (timeoutId) {
+      clearTimeout(timeoutId);
+    }
     timeoutId = setTimeout(() => {
       func(...args);
     }, delay);
@@ -12,9 +14,8 @@ const lineHeightCache = new Map();
 
 const getLineHeight = (element) => {
   const cacheKey = element.tagName + element.className;
-  const cachedLineHeight = lineHeightCache.get(cacheKey);
-  if (cachedLineHeight) {
-    return cachedLineHeight;
+  if (lineHeightCache.has(cacheKey)) {
+    return lineHeightCache.get(cacheKey);
   }
   const lineHeight = parseFloat(getComputedStyle(element).lineHeight);
   lineHeightCache.set(cacheKey, lineHeight);
@@ -22,18 +23,28 @@ const getLineHeight = (element) => {
 };
 
 const truncateText = (element) => {
-  const container = element.querySelector(
-    "p, h2, h3, h4, h5, h6, div, span, ul, li"
-  );
+  const container = element.querySelector("p, h2, h3, h4, h5, h6, div, span");
   if (!container) return;
 
   const text = container.innerHTML;
-  const maxLines =
-    parseInt(element.getAttribute("data-max-lines-desktop")) ||
-    parseInt(element.getAttribute("data-max-lines-tablet")) ||
-    parseInt(element.getAttribute("data-max-lines-mobile")) ||
-    parseInt(element.getAttribute("data-max-lines")) ||
-    Infinity;
+  let maxLines;
+
+  if (window.innerWidth < 768) {
+    maxLines =
+      parseInt(element.getAttribute("data-max-lines-mobile")) ||
+      parseInt(element.getAttribute("data-max-lines")) ||
+      Infinity;
+  } else if (window.innerWidth < 1024) {
+    maxLines =
+      parseInt(element.getAttribute("data-max-lines-tablet")) ||
+      parseInt(element.getAttribute("data-max-lines")) ||
+      Infinity;
+  } else {
+    maxLines =
+      parseInt(element.getAttribute("data-max-lines-desktop")) ||
+      parseInt(element.getAttribute("data-max-lines")) ||
+      Infinity;
+  }
 
   const lineHeight = getLineHeight(container);
   const maxContainerHeight = lineHeight * maxLines;
@@ -97,7 +108,7 @@ const observer = new IntersectionObserver(
       }
     });
   },
-  { root: null, threshold: 0.5 }
+  { root: null, threshold: 0 }
 );
 
 const observeElements = () => {
