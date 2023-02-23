@@ -1,15 +1,7 @@
-const lineHeightCache = new Map();
+// Step 1: Replace Map with Object for caching line heights
+const lineHeightCache = {};
 
-const getLineHeight = (element) => {
-  const cacheKey = element.tagName + element.className;
-  if (lineHeightCache.has(cacheKey)) {
-    return lineHeightCache.get(cacheKey);
-  }
-  const lineHeight = parseFloat(getComputedStyle(element).lineHeight);
-  lineHeightCache.set(cacheKey, lineHeight);
-  return lineHeight;
-};
-
+// Step 2: Inline the getLineHeight function
 const truncateText = (element) => {
   const container = element.querySelector("p, h2, h3, h4, h5, h6, div, span");
   if (!container) return;
@@ -34,7 +26,14 @@ const truncateText = (element) => {
       Infinity;
   }
 
-  const lineHeight = getLineHeight(container);
+  // Step 2: Inline getLineHeight
+  const cacheKey = container.tagName + container.className;
+  const lineHeight =
+    lineHeightCache[cacheKey] ||
+    (lineHeightCache[cacheKey] = parseFloat(
+      getComputedStyle(container).lineHeight
+    ));
+
   const maxContainerHeight = lineHeight * maxLines;
 
   container.style.height = "auto";
@@ -84,9 +83,12 @@ const truncateText = (element) => {
 };
 
 const truncateAllText = () => {
-  document.querySelectorAll("[data-max-lines]").forEach((element) => {
-    truncateText(element);
-  });
+  // Step 4: Convert NodeList to Array to avoid calling forEach on it directly
+  Array.from(document.querySelectorAll("[data-max-lines]")).forEach(
+    (element) => {
+      truncateText(element);
+    }
+  );
 };
 
 window.addEventListener("load", truncateAllText);
