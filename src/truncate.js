@@ -108,7 +108,7 @@ const observer = new IntersectionObserver(
       }
     });
   },
-  { root: null, threshold: 0.5 } // Change the threshold to 0.5 to trigger earlier
+  { root: null, threshold: 0.1 }
 );
 
 const observeElements = () => {
@@ -116,7 +116,6 @@ const observeElements = () => {
     observer.observe(element);
   });
 
-  // Manually trigger observation on all elements
   window.setTimeout(() => {
     observer.disconnect();
     document.querySelectorAll("[data-max-lines]").forEach((element) => {
@@ -125,7 +124,7 @@ const observeElements = () => {
         element.dataset.truncated = true;
       }
     });
-  }, 100); // Wait for 1 second before truncating all elements
+  }, 500);
 };
 
 const debouncedObserveElements = debounce(observeElements, 50);
