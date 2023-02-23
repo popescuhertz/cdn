@@ -10,32 +10,16 @@ const debounce = (func, delay) => {
   };
 };
 
+const lineHeightCache = new Map();
+
 const getLineHeight = (element) => {
   const cacheKey = element.tagName + element.className;
-  const cachedLineHeight = element.dataset.lineHeight;
-  if (cachedLineHeight) {
-    return parseFloat(cachedLineHeight);
+  if (lineHeightCache.has(cacheKey)) {
+    return lineHeightCache.get(cacheKey);
   }
   const lineHeight = parseFloat(getComputedStyle(element).lineHeight);
-  element.dataset.lineHeight = lineHeight;
+  lineHeightCache.set(cacheKey, lineHeight);
   return lineHeight;
-};
-
-const binarySearch = (arr, target, comparator) => {
-  let left = 0;
-  let right = arr.length - 1;
-  while (left <= right) {
-    const mid = Math.floor((left + right) / 2);
-    const comparisonResult = comparator(target, arr[mid]);
-    if (comparisonResult === 0) {
-      return mid;
-    } else if (comparisonResult < 0) {
-      right = mid - 1;
-    } else {
-      left = mid + 1;
-    }
-  }
-  return right;
 };
 
 const truncateText = (element) => {
@@ -43,29 +27,72 @@ const truncateText = (element) => {
   if (!container) return;
 
   const text = container.innerHTML;
-  const targetHeight = parseInt(element.dataset.maxHeight);
-  if (!targetHeight) return;
+  let maxLines;
+
+  if (window.innerWidth < 768) {
+    maxLines =
+      parseInt(element.getAttribute("data-max-lines-mobile")) ||
+      parseInt(element.getAttribute("data-max-lines")) ||
+      Infinity;
+  } else if (window.innerWidth < 1024) {
+    maxLines =
+      parseInt(element.getAttribute("data-max-lines-tablet")) ||
+      parseInt(element.getAttribute("data-max-lines")) ||
+      Infinity;
+  } else {
+    maxLines =
+      parseInt(element.getAttribute("data-max-lines-desktop")) ||
+      parseInt(element.getAttribute("data-max-lines")) ||
+      Infinity;
+  }
 
   const lineHeight = getLineHeight(container);
-  const maxLines = Math.floor(targetHeight / lineHeight);
+  const maxContainerHeight = lineHeight * maxLines;
 
-  if (maxLines >= container.offsetHeight / lineHeight) return;
+  container.style.height = "auto";
+  const fullContainerHeight = container.offsetHeight;
+  container.style.height = "";
 
-  let left = 0;
-  let right = text.length - 1;
-  let mid;
-  let lastMid;
-  while (left <= right) {
-    lastMid = mid;
-    mid = Math.floor((left + right) / 2);
-    container.innerHTML = text.slice(0, mid) + "...";
-    if (container.offsetHeight <= targetHeight) {
-      left = mid + 1;
+  if (fullContainerHeight > maxContainerHeight) {
+    let truncatedText = text;
+    while (
+      container.offsetHeight > maxContainerHeight &&
+      truncatedText.length > 0
+    ) {
+      truncatedText = truncatedText.slice(0, -1);
+      container.innerHTML = truncatedText + "...";
+    }
+
+    const showMoreBtn = element.querySelector(".show-more");
+    const showLessBtn = element.querySelector(".show-less");
+    const shouldShowButtons = container.offsetHeight < fullContainerHeight;
+
+    if (showMoreBtn && showLessBtn) {
+      showMoreBtn.style.display = shouldShowButtons ? "inline" : "none";
+      showLessBtn.style.display = "none";
+
+      showMoreBtn.addEventListener("click", () => {
+        container.innerHTML = text;
+        showMoreBtn.style.display = "none";
+        showLessBtn.style.display = "inline";
+      });
+
+      showLessBtn.addEventListener("click", () => {
+        container.innerHTML = truncatedText + "...";
+        showMoreBtn.style.display = "inline";
+        showLessBtn.style.display = "none";
+      });
     } else {
-      right = mid - 1;
+      container.innerHTML = truncatedText + "...";
+    }
+  } else {
+    const showMoreBtn = element.querySelector(".show-more");
+    const showLessBtn = element.querySelector(".show-less");
+    if (showMoreBtn && showLessBtn) {
+      showMoreBtn.style.display = "none";
+      showLessBtn.style.display = "none";
     }
   }
-  container.innerHTML = text.slice(0, lastMid) + "...";
 };
 
 const observer = new IntersectionObserver(
@@ -85,7 +112,7 @@ const observer = new IntersectionObserver(
 );
 
 const observeElements = () => {
-  document.querySelectorAll("[data-max-height]").forEach((element) => {
+  document.querySelectorAll("[data-max-lines]").forEach((element) => {
     observer.observe(element);
   });
 };
