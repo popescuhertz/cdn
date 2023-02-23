@@ -99,16 +99,18 @@ const observer = new IntersectionObserver(
   (entries) => {
     entries.forEach((entry) => {
       if (entry.isIntersecting) {
+        // Check if the element has already been truncated
         if (entry.target.dataset.truncated) {
           return;
         }
         truncateText(entry.target);
+        // Set the "truncated" attribute to indicate that the element has been truncated
         entry.target.dataset.truncated = true;
         observer.unobserve(entry.target);
       }
     });
   },
-  { root: null, threshold: 0 }
+  { root: null, threshold: 0.1 }
 );
 
 const observeElements = () => {
@@ -117,6 +119,6 @@ const observeElements = () => {
   });
 };
 
-const debouncedObserveElements = debounce(observeElements, 50);
+const debouncedObserveElements = debounce(observeElements, 200);
 
 window.addEventListener("load", debouncedObserveElements);
