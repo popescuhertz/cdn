@@ -105,40 +105,26 @@ const observer = new IntersectionObserver(
         truncateText(entry.target);
         entry.target.dataset.truncated = true;
         observer.unobserve(entry.target);
+        const triggerPoint = entry.target.offsetTop - window.innerHeight - 200;
+        if (window.pageYOffset >= triggerPoint) {
+          truncateText(entry.target);
+          entry.target.dataset.truncated = true;
+          observer.unobserve(entry.target);
+        }
       }
     });
   },
-  { root: null, threshold: 0, rootMargin: "-200px" }
+  { root: null, threshold: 0 }
 );
 
-const elementsToObserve = document.querySelectorAll("[data-max-lines]");
-
-elementsToObserve.forEach((element) => {
-  observer.observe(element);
-  element.style.opacity = 0; // hide the element initially
-});
-
-const lazyLoad = () => {
-  elementsToObserve.forEach((element) => {
-    if (element.dataset.truncated) {
-      return;
-    }
-    const elementRect = element.getBoundingClientRect();
-    if (elementRect.top - window.innerHeight < 200) {
-      truncateText(element);
-      element.dataset.truncated = true;
-      element.style.opacity = 1; // show the element after truncation
-      observer.unobserve(element);
-    }
+const lazyLoadTruncate = () => {
+  document.querySelectorAll("[data-max-lines]").forEach((element) => {
+    observer.observe(element);
   });
 };
 
-const debouncedLazyLoad = debounce(lazyLoad, 50);
+const debouncedLazyLoadTruncate = debounce(lazyLoadTruncate, 50);
 
-window.addEventListener("load", () => {
-  observeElements();
-  debouncedLazyLoad();
-});
-
-window.addEventListener("scroll", debouncedLazyLoad);
-window.addEventListener("resize", debouncedLazyLoad);
+window.addEventListener("load", debouncedLazyLoadTruncate);
+window.addEventListener("scroll", debouncedLazyLoadTruncate);
+window.addEventListener("resize", debouncedLazyLoadTruncate);
