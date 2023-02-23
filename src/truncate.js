@@ -1,7 +1,27 @@
-// Step 1: Replace Map with Object for caching line heights
-const lineHeightCache = {};
+const debounce = (func, delay) => {
+  let timeoutId;
+  return (...args) => {
+    if (timeoutId) {
+      clearTimeout(timeoutId);
+    }
+    timeoutId = setTimeout(() => {
+      func(...args);
+    }, delay);
+  };
+};
 
-// Step 2: Inline the getLineHeight function
+const lineHeightCache = new Map();
+
+const getLineHeight = (element) => {
+  const cacheKey = element.tagName + element.className;
+  if (lineHeightCache.has(cacheKey)) {
+    return lineHeightCache.get(cacheKey);
+  }
+  const lineHeight = parseFloat(getComputedStyle(element).lineHeight);
+  lineHeightCache.set(cacheKey, lineHeight);
+  return lineHeight;
+};
+
 const truncateText = (element) => {
   const container = element.querySelector("p, h2, h3, h4, h5, h6, div, span");
   if (!container) return;
@@ -26,14 +46,7 @@ const truncateText = (element) => {
       Infinity;
   }
 
-  // Step 2: Inline getLineHeight
-  const cacheKey = container.tagName + container.className;
-  const lineHeight =
-    lineHeightCache[cacheKey] ||
-    (lineHeightCache[cacheKey] = parseFloat(
-      getComputedStyle(container).lineHeight
-    ));
-
+  const lineHeight = getLineHeight(container);
   const maxContainerHeight = lineHeight * maxLines;
 
   container.style.height = "auto";
@@ -82,13 +95,28 @@ const truncateText = (element) => {
   }
 };
 
-const truncateAllText = () => {
-  // Step 4: Convert NodeList to Array to avoid calling forEach on it directly
-  Array.from(document.querySelectorAll("[data-max-lines]")).forEach(
-    (element) => {
-      truncateText(element);
-    }
-  );
+const observer = new IntersectionObserver(
+  (entries) => {
+    entries.forEach((entry) => {
+      if (entry.isIntersecting) {
+        if (entry.target.dataset.truncated) {
+          return;
+        }
+        truncateText(entry.target);
+        entry.target.dataset.truncated = true;
+        observer.unobserve(entry.target);
+      }
+    });
+  },
+  { root: null, threshold: 0 }
+);
+
+const observeElements = () => {
+  document.querySelectorAll("[data-max-lines]").forEach((element) => {
+    observer.observe(element);
+  });
 };
 
-window.addEventListener("load", truncateAllText);
+const debouncedObserveElements = debounce(observeElements, 0);
+
+window.addEventListener("load", debouncedObserveElements);
