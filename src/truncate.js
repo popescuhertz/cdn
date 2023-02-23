@@ -98,7 +98,8 @@ const truncateText = (element) => {
 const observer = new IntersectionObserver(
   (entries) => {
     entries.forEach((entry) => {
-      if (entry.isIntersecting) {
+      if (entry.isIntersecting || entry.intersectionRatio > 0) {
+        // Trigger if element is in viewport or intersects the viewport by any amount
         if (entry.target.dataset.truncated) {
           return;
         }
@@ -108,7 +109,7 @@ const observer = new IntersectionObserver(
       }
     });
   },
-  { root: null, threshold: 0 }
+  { rootMargin: "-200px 0px" } // Lazy load 200px before element comes into view
 );
 
 const observeElements = () => {
@@ -120,3 +121,4 @@ const observeElements = () => {
 const debouncedObserveElements = debounce(observeElements, 50);
 
 window.addEventListener("load", debouncedObserveElements);
+window.addEventListener("resize", debouncedObserveElements); // Reobserve elements on window resize
