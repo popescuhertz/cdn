@@ -120,4 +120,3 @@ const observeElements = () => {
 const debouncedObserveElements = debounce(observeElements, 50);
 
 window.addEventListener("load", debouncedObserveElements);
-//test comment
