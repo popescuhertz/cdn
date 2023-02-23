@@ -3,9 +3,26 @@ const truncateText = (element) => {
   if (!container) return;
 
   const text = container.innerHTML.trim();
+  let maxLines;
 
-  const maxLines = parseInt(element.dataset.maxLines) || Infinity;
-  const lineHeight = parseFloat(getComputedStyle(container).lineHeight);
+  if (window.innerWidth < 768) {
+    maxLines =
+      parseInt(element.getAttribute("data-max-lines-mobile")) ||
+      parseInt(element.getAttribute("data-max-lines")) ||
+      Infinity;
+  } else if (window.innerWidth < 1024) {
+    maxLines =
+      parseInt(element.getAttribute("data-max-lines-tablet")) ||
+      parseInt(element.getAttribute("data-max-lines")) ||
+      Infinity;
+  } else {
+    maxLines =
+      parseInt(element.getAttribute("data-max-lines-desktop")) ||
+      parseInt(element.getAttribute("data-max-lines")) ||
+      Infinity;
+  }
+
+  const lineHeight = getLineHeight(container);
   const maxContainerHeight = lineHeight * maxLines;
 
   container.style.height = "auto";
@@ -13,32 +30,47 @@ const truncateText = (element) => {
   container.style.height = "";
 
   if (fullContainerHeight > maxContainerHeight) {
-    let truncatedText = text.slice(0, -1);
-    while (
-      container.offsetHeight > maxContainerHeight &&
-      truncatedText.length > 0
-    ) {
-      truncatedText = truncatedText.slice(0, -1);
+    // Perform a binary search to find the maximum number of characters
+    // that can be shown within the available space.
+    let start = 0;
+    let end = text.length - 1;
+    let mid;
+
+    while (start <= end) {
+      mid = Math.floor((start + end) / 2);
+      container.innerHTML = text.substring(0, mid) + "...";
+
+      if (container.offsetHeight > maxContainerHeight) {
+        end = mid - 1;
+      } else {
+        start = mid + 1;
+      }
     }
-    container.innerHTML = truncatedText.trim() + "...";
+
+    // Show the truncated text.
+    container.innerHTML = text.substring(0, end) + "...";
 
     const showMoreBtn = element.querySelector(".show-more");
     const showLessBtn = element.querySelector(".show-less");
+    const shouldShowButtons = container.offsetHeight < fullContainerHeight;
+
     if (showMoreBtn && showLessBtn) {
-      showMoreBtn.style.display = "inline";
+      showMoreBtn.style.display = shouldShowButtons ? "inline" : "none";
       showLessBtn.style.display = "none";
 
       showMoreBtn.addEventListener("click", () => {
-        container.innerHTML = text + "...";
+        container.innerHTML = text;
         showMoreBtn.style.display = "none";
         showLessBtn.style.display = "inline";
       });
 
       showLessBtn.addEventListener("click", () => {
-        container.innerHTML = truncatedText.trim() + "...";
+        container.innerHTML = text.substring(0, end) + "...";
         showMoreBtn.style.display = "inline";
         showLessBtn.style.display = "none";
       });
+    } else {
+      container.innerHTML = text.substring(0, end) + "...";
     }
   } else {
     const showMoreBtn = element.querySelector(".show-more");
@@ -49,29 +81,3 @@ const truncateText = (element) => {
     }
   }
 };
-
-const observer = new IntersectionObserver(
-  (entries) => {
-    entries.forEach((entry) => {
-      if (entry.isIntersecting) {
-        if (entry.target.dataset.truncated) {
-          return;
-        }
-        truncateText(entry.target);
-        entry.target.dataset.truncated = true;
-        observer.unobserve(entry.target);
-      }
-    });
-  },
-  { root: null, threshold: 0 }
-);
-
-const observeElements = () => {
-  document.querySelectorAll("[data-max-lines]").forEach((element) => {
-    observer.observe(element);
-  });
-};
-
-const debouncedObserveElements = debounce(observeElements, 50);
-
-window.addEventListener("load", debouncedObserveElements);
