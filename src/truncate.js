@@ -83,11 +83,10 @@ const truncateText = (element) => {
   }
 };
 
-const observeElements = () => {
+const truncateAllText = () => {
   document.querySelectorAll("[data-max-lines]").forEach((element) => {
     truncateText(element);
   });
 };
 
-window.addEventListener("load", observeElements);
-window.addEventListener("resize", observeElements);
+window.addEventListener("load", truncateAllText);
