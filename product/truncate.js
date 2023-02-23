@@ -113,11 +113,10 @@ const observer = new IntersectionObserver(
 
 const observeElements = () => {
   document.querySelectorAll("[data-max-lines]").forEach((element) => {
-    if (!element.dataset.truncated) {
-      truncateText(element);
-      element.dataset.truncated = true;
-    }
+    observer.observe(element);
   });
 };
 
-window.addEventListener("load", observeElements);
+const debouncedObserveElements = debounce(observeElements, 50);
+
+window.addEventListener("load", debouncedObserveElements);
