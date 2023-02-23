@@ -108,15 +108,26 @@ const observer = new IntersectionObserver(
       }
     });
   },
-  { root: null, threshold: 0 }
+  { root: null, threshold: 0.5 } // Change the threshold to 0.5 to trigger earlier
 );
 
 const observeElements = () => {
   document.querySelectorAll("[data-max-lines]").forEach((element) => {
     observer.observe(element);
   });
+
+  // Manually trigger observation on all elements
+  window.setTimeout(() => {
+    observer.disconnect();
+    document.querySelectorAll("[data-max-lines]").forEach((element) => {
+      if (!element.dataset.truncated) {
+        truncateText(element);
+        element.dataset.truncated = true;
+      }
+    });
+  }, 1000); // Wait for 1 second before truncating all elements
 };
 
-const debouncedObserveElements = debounce(observeElements, 0);
+const debouncedObserveElements = debounce(observeElements, 50);
 
 window.addEventListener("load", debouncedObserveElements);
