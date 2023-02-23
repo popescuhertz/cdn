@@ -1,39 +1,28 @@
-const debounce = (func, delay) => {
-  let timeoutId;
-  return (...args) => {
-    clearTimeout(timeoutId);
-    timeoutId = setTimeout(() => {
-      func(...args);
-    }, delay);
-  };
-};
-
-const lineHeightCache = new Map();
-
-const getLineHeight = (element) => {
-  const cacheKey = element.tagName + element.className;
-  const cachedLineHeight = lineHeightCache.get(cacheKey);
-  if (cachedLineHeight) {
-    return cachedLineHeight;
-  }
-  const lineHeight = parseFloat(getComputedStyle(element).lineHeight);
-  lineHeightCache.set(cacheKey, lineHeight);
-  return lineHeight;
-};
-
-const truncateText = (element) => {
+document.querySelectorAll("[data-max-lines]").forEach((element) => {
   const container = element.querySelector("p, h2, h3, h4, h5, h6, div, span");
   if (!container) return;
 
   const text = container.innerHTML;
-  const maxLines =
-    parseInt(element.getAttribute("data-max-lines-desktop")) ||
-    parseInt(element.getAttribute("data-max-lines-tablet")) ||
-    parseInt(element.getAttribute("data-max-lines-mobile")) ||
-    parseInt(element.getAttribute("data-max-lines")) ||
-    Infinity;
+  let maxLines;
 
-  const lineHeight = getLineHeight(container);
+  if (window.innerWidth < 768) {
+    maxLines =
+      parseInt(element.getAttribute("data-max-lines-mobile")) ||
+      parseInt(element.getAttribute("data-max-lines")) ||
+      Infinity;
+  } else if (window.innerWidth < 1024) {
+    maxLines =
+      parseInt(element.getAttribute("data-max-lines-tablet")) ||
+      parseInt(element.getAttribute("data-max-lines")) ||
+      Infinity;
+  } else {
+    maxLines =
+      parseInt(element.getAttribute("data-max-lines-desktop")) ||
+      parseInt(element.getAttribute("data-max-lines")) ||
+      Infinity;
+  }
+
+  const lineHeight = parseFloat(getComputedStyle(container).lineHeight);
   const maxContainerHeight = lineHeight * maxLines;
 
   container.style.height = "auto";
@@ -80,30 +69,4 @@ const truncateText = (element) => {
       showLessBtn.style.display = "none";
     }
   }
-};
-
-const observer = new IntersectionObserver(
-  (entries) => {
-    entries.forEach((entry) => {
-      if (entry.isIntersecting) {
-        if (entry.target.dataset.truncated) {
-          return;
-        }
-        truncateText(entry.target);
-        entry.target.dataset.truncated = true;
-        observer.unobserve(entry.target);
-      }
-    });
-  },
-  { root: null, threshold: 0.5 }
-);
-
-const observeElements = () => {
-  document.querySelectorAll("[data-max-lines]").forEach((element) => {
-    observer.observe(element);
-  });
-};
-
-const debouncedObserveElements = debounce(observeElements, 50);
-
-window.addEventListener("load", debouncedObserveElements);
+});
