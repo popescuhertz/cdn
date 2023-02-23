@@ -95,6 +95,12 @@ const truncateText = (element) => {
   }
 };
 
+const intersectionObserverConfig = {
+  root: null,
+  rootMargin: "200px",
+  threshold: 0,
+};
+
 const observer = new IntersectionObserver(
   (entries) => {
     entries.forEach((entry) => {
@@ -105,26 +111,41 @@ const observer = new IntersectionObserver(
         truncateText(entry.target);
         entry.target.dataset.truncated = true;
         observer.unobserve(entry.target);
-        const triggerPoint = entry.target.offsetTop - window.innerHeight - 200;
-        if (window.pageYOffset >= triggerPoint) {
+        // Check if element is close to viewport
+        const intersectionRatio = entry.intersectionRatio;
+        const isCloseToViewport =
+          intersectionRatio > 0 && intersectionRatio < 1;
+
+        // If element is close to viewport, truncate immediately
+        if (isCloseToViewport) {
           truncateText(entry.target);
           entry.target.dataset.truncated = true;
           observer.unobserve(entry.target);
+        } else {
+          // Otherwise, debounce the truncation to occur 200px before element comes into viewport
+          debounce(
+            () => {
+              truncateText(entry.target);
+              entry.target.dataset.truncated = true;
+              observer.unobserve(entry.target);
+            },
+            50,
+            { leading: true, trailing: false, maxWait: 200 }
+          )();
         }
       }
     });
   },
-  { root: null, threshold: 0 }
+  { rootMargin: "200px 0px", threshold: 0 }
 );
 
-const lazyLoadTruncate = () => {
+const observeElements = () => {
   document.querySelectorAll("[data-max-lines]").forEach((element) => {
     observer.observe(element);
   });
 };
 
-const debouncedLazyLoadTruncate = debounce(lazyLoadTruncate, 50);
+window.addEventListener("load", observeElements);
 
-window.addEventListener("load", debouncedLazyLoadTruncate);
-window.addEventListener("scroll", debouncedLazyLoadTruncate);
-window.addEventListener("resize", debouncedLazyLoadTruncate);
+// Update observer when window is resized
+window.addEventListener("resize", debounce(observeElements, 50));
