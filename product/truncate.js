@@ -99,26 +99,25 @@ const observer = new IntersectionObserver(
   (entries) => {
     entries.forEach((entry) => {
       if (entry.isIntersecting) {
-        // Check if the element has already been truncated
         if (entry.target.dataset.truncated) {
           return;
         }
         truncateText(entry.target);
-        // Set the "truncated" attribute to indicate that the element has been truncated
         entry.target.dataset.truncated = true;
         observer.unobserve(entry.target);
       }
     });
   },
-  { root: null, threshold: 0.1 }
+  { root: null, threshold: 0 }
 );
 
 const observeElements = () => {
   document.querySelectorAll("[data-max-lines]").forEach((element) => {
-    observer.observe(element);
+    if (!element.dataset.truncated) {
+      truncateText(element);
+      element.dataset.truncated = true;
+    }
   });
 };
 
-const debouncedObserveElements = debounce(observeElements, 200);
-
-window.addEventListener("load", debouncedObserveElements);
+window.addEventListener("load", observeElements);
