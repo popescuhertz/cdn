@@ -83,26 +83,11 @@ const truncateText = (element) => {
   }
 };
 
-const observer = new IntersectionObserver(
-  (entries) => {
-    entries.forEach((entry) => {
-      if (entry.isIntersecting) {
-        if (entry.target.dataset.truncated) {
-          return;
-        }
-        truncateText(entry.target);
-        entry.target.dataset.truncated = true;
-        observer.unobserve(entry.target);
-      }
-    });
-  },
-  { root: null, threshold: 0 }
-);
-
 const observeElements = () => {
   document.querySelectorAll("[data-max-lines]").forEach((element) => {
-    observer.observe(element);
+    truncateText(element);
   });
 };
 
 window.addEventListener("load", observeElements);
+window.addEventListener("resize", observeElements);
