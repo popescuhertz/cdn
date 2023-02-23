@@ -23,7 +23,9 @@ const getLineHeight = (element) => {
 };
 
 const truncateText = (element) => {
-  const container = element.querySelector("p, h2, h3, h4, h5, h6, div, span");
+  const container = element.querySelector(
+    "p, h2, h3, h4, h5, h6, div, span, li"
+  );
   if (!container) return;
 
   const text = container.innerHTML;
