@@ -84,13 +84,19 @@ const truncateText = (element) => {
   }
 };
 
+const truncateVisibleElements = () => {
+  document.querySelectorAll("[data-max-lines]").forEach((element) => {
+    if (element.getBoundingClientRect().top < window.innerHeight) {
+      truncateText(element);
+      element.dataset.truncated = true;
+    }
+  });
+};
+
 const observer = new IntersectionObserver(
   (entries) => {
     entries.forEach((entry) => {
       if (entry.isIntersecting) {
-        if (entry.target.dataset.truncated) {
-          return;
-        }
         truncateText(entry.target);
         entry.target.dataset.truncated = true;
         observer.unobserve(entry.target);
@@ -108,4 +114,16 @@ const observeElements = () => {
 
 const debouncedObserveElements = debounce(observeElements, 50);
 
-window.addEventListener("load", debouncedObserveElements);
+const truncateAll = () => {
+  document.querySelectorAll("[data-max-lines]").forEach((element) => {
+    truncateText(element);
+    element.dataset.truncated = true;
+  });
+};
+
+window.addEventListener("load", () => {
+  truncateAll();
+  observer.disconnect();
+});
+
+window.addEventListener("resize", debouncedObserveElements);
