@@ -26,6 +26,7 @@ class CuttrBreakpoints {
           );
           const maxHeight = options.lines * lineHeight;
           element.style.maxHeight = maxHeight + "px";
+          element.style.overflow = "hidden";
           cuttrInstance.recalculate();
         }
       });
