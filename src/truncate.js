@@ -1,57 +1,109 @@
-// define the options for each breakpoint and instance
-const options = [
-  {
-    breakpoint: "(max-width: 768px)",
-    instances: [
-      {
-        selector: ".element-b",
-        truncate: "words",
-        length: 10,
-      },
-      {
-        selector: ".element-a",
-        truncate: "characters",
-        length: 50,
-      },
-    ],
-  },
-  {
-    breakpoint: "(min-width: 769px)",
-    instances: [
-      {
-        selector: ".element-b",
-        truncate: "words",
-        length: 20,
-      },
-      {
-        selector: ".element-a",
-        truncate: "characters",
-        length: 100,
-      },
-    ],
-  },
-];
+class CuttrWithOptions {
+  constructor(options) {
+    this.defaultOptions = {
+      truncate: "words",
+      length: 100,
+      ending: "...",
+      loadedClass: "cuttr--loaded",
+      title: false,
+      readMore: false,
+      readMoreText: "Read more",
+      readLessText: "Read less",
+      readMoreBtnPosition: "after",
+      readMoreBtnTag: "button",
+      readMoreBtnSelectorClass: "cuttr__readmore",
+      readMoreBtnAdditionalClasses: "",
+      breakpoints: [],
+    };
+    this.options = Object.assign({}, this.defaultOptions, options);
+    this.init();
+  }
 
-// create a function to initialize Cuttr instances for each breakpoint and instance
-function initCuttr() {
-  options.forEach((option) => {
-    const mediaQuery = window.matchMedia(option.breakpoint);
-    const instances = option.instances.map((instance) => {
-      const element = document.querySelector(instance.selector);
-      return new Cuttr(element, instance);
+  init() {
+    this.truncateElements = document.querySelectorAll(".cuttr");
+
+    this.truncateElements.forEach((truncateElement) => {
+      let options = Object.assign(
+        {},
+        this.options,
+        this.getBreakpointOptions(truncateElement)
+      );
+
+      truncateElement.cuttr = new Cuttr(truncateElement, options);
     });
-    // add listener to update instances when breakpoint changes
-    mediaQuery.addListener((event) => {
-      if (event.matches) {
-        instances.forEach((instance) => {
-          instance.destroy();
-          const element = document.querySelector(instance.selector);
-          new Cuttr(element, instance);
-        });
-      }
-    });
-  });
+  }
+
+  getBreakpointOptions(truncateElement) {
+    let options = {};
+    if (this.options.breakpoints.length > 0) {
+      this.options.breakpoints.forEach((breakpoint) => {
+        if (window.matchMedia(breakpoint.mediaQuery).matches) {
+          if (truncateElement.classList.contains(breakpoint.class)) {
+            options = breakpoint.options;
+          }
+        }
+      });
+    }
+    return options;
+  }
 }
 
-// call the function to initialize Cuttr instances on page load
-initCuttr();
+let cuttrWithOptions = new CuttrWithOptions({
+  truncate: "words",
+  length: 12,
+  breakpoints: [
+    {
+      class: "cuttr-small",
+      mediaQuery: "(max-width: 576px)",
+      options: {
+        truncate: "words",
+        length: 6,
+        readMore: true,
+      },
+    },
+    {
+      class: "cuttr-medium",
+      mediaQuery: "(max-width: 768px)",
+      options: {
+        truncate: "words",
+        length: 8,
+        readMore: true,
+      },
+    },
+    {
+      class: "cuttr-large",
+      mediaQuery: "(max-width: 992px)",
+      options: {
+        truncate: "words",
+        length: 10,
+        readMore: true,
+      },
+    },
+  ],
+});
+
+let cuttrDefaultOptions = new CuttrWithOptions({
+  truncate: "words",
+  length: 12,
+  readMore: true,
+  breakpoints: [
+    {
+      mediaQuery: "(max-width: 576px)",
+      options: {
+        length: 6,
+      },
+    },
+    {
+      mediaQuery: "(max-width: 768px)",
+      options: {
+        length: 8,
+      },
+    },
+    {
+      mediaQuery: "(max-width: 992px)",
+      options: {
+        length: 10,
+      },
+    },
+  ],
+});
