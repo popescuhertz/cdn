@@ -93,24 +93,14 @@ const cuttrClasses = [
   },
 ];
 
-// Set global options
 Cuttr.prototype.defaults = defaults;
 
-// Initialize CuttrBreakpoints instances
-const cuttrBreakpoints = cuttrClasses.map(
-  (classObj) =>
-    new CuttrBreakpoints(
-      classObj.selector,
-      classObj.options,
-      classObj.breakpoints
-    )
-);
+const cuttrInstances = [];
 
-// Loop through the cuttrClasses array and create a new instance of CuttrBreakpoints for each object
-const cuttrInstances = cuttrClasses.map((classObj) => {
+for (const classObj of cuttrClasses) {
   const { selector, options, breakpoints } = classObj;
-  return new CuttrBreakpoints(selector, options, breakpoints);
-});
+  const cuttrInstance = new CuttrBreakpoints(selector, options, breakpoints);
+  cuttrInstances.push(cuttrInstance);
+}
 
-// Now you have an array of CuttrBreakpoints instances that you can use as needed
 console.log(cuttrInstances);
