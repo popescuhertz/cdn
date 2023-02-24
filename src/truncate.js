@@ -27,7 +27,7 @@ class CuttrBreakpoints {
 
 const defaults = {
   licenseKey: "2E864F64-86BB4151-AD9A08AF-B0B5C5BA",
-  truncate: "characters",
+  truncate: "words",
   length: 100,
   ending: "...",
   loadedClass: "cuttr--loaded",
@@ -35,9 +35,9 @@ const defaults = {
   readMore: false,
   readMoreText: "Read more",
   readLessText: "Read less",
-  readMoreBtnPosition: "after",
+  readMoreBtnPosition: "inside",
   readMoreBtnTag: "button",
-  readMoreBtnSelectorClass: "cuttr__readmore",
+  readMoreBtnSelectorClass: "read-more",
   readMoreBtnAdditionalClasses: "",
 };
 
@@ -45,23 +45,19 @@ const cuttrClasses = [
   {
     selector: ".truncate-small",
     options: {
-      length: 500,
-      readMore: true,
-      readMoreText: "Read more for Class 1",
+      length: 40,
     },
     breakpoints: [
       {
         query: "(max-width: 480px)",
         options: {
-          length: 250,
-          readMoreText: "Read more for Class 1 - Breakpoint 1",
+          length: 20,
         },
       },
       {
         query: "(min-width: 481px) and (max-width: 768px)",
         options: {
-          length: 350,
-          readMoreText: "Read more for Class 1 - Breakpoint 2",
+          length: 30,
         },
       },
     ],
@@ -69,24 +65,41 @@ const cuttrClasses = [
   {
     selector: ".truncate-medium",
     options: {
-      truncate: "words",
-      length: 20,
+      length: 60,
       readMore: true,
-      readMoreText: "Read more for Class 2",
     },
     breakpoints: [
       {
         query: "(max-width: 480px)",
         options: {
-          length: 10,
-          readMoreText: "Read more for Class 2 - Breakpoint 1",
+          length: 40,
         },
       },
       {
         query: "(min-width: 481px) and (max-width: 768px)",
         options: {
-          length: 15,
-          readMoreText: "Read more for Class 2 - Breakpoint 2",
+          length: 50,
+        },
+      },
+    ],
+  },
+  {
+    selector: ".truncate-large",
+    options: {
+      length: 100,
+      readMore: true,
+    },
+    breakpoints: [
+      {
+        query: "(max-width: 480px)",
+        options: {
+          length: 60,
+        },
+      },
+      {
+        query: "(min-width: 481px) and (max-width: 768px)",
+        options: {
+          length: 85,
         },
       },
     ],
