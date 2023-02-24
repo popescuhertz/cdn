@@ -25,9 +25,19 @@ class CuttrBreakpoints {
             window.getComputedStyle(element).lineHeight
           );
           const maxHeight = options.lines * lineHeight;
-          element.style.maxHeight = maxHeight + "px";
-          element.style.overflow = "hidden";
-          cuttrInstance.recalculate();
+          let truncated = false;
+          while (element.scrollHeight > maxHeight) {
+            const text = element.textContent;
+            const words = text.split(" ");
+            words.pop();
+            element.textContent = words.join(" ") + options.ending;
+            truncated = true;
+          }
+          if (truncated) {
+            element.style.height = maxHeight + "px";
+            element.style.overflow = "hidden";
+            cuttrInstance.recalculate();
+          }
         }
       });
     }
