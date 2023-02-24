@@ -1,109 +1,83 @@
-class CuttrWithOptions {
-  constructor(options) {
-    this.defaultOptions = {
+$(document).ready(function () {
+  // Define an object that maps each class to its truncation options
+  const classOptions = {
+    ".element1": {
       truncate: "words",
+      length: 20,
+    },
+    ".element2": {
+      truncate: "words",
+      length: 30,
+      readMore: true,
+    },
+    ".element3": {
+      truncate: "characters",
       length: 100,
-      ending: "...",
-      loadedClass: "cuttr--loaded",
-      title: false,
-      readMore: false,
-      readMoreText: "Read more",
-      readLessText: "Read less",
-      readMoreBtnPosition: "after",
-      readMoreBtnTag: "button",
-      readMoreBtnSelectorClass: "cuttr__readmore",
-      readMoreBtnAdditionalClasses: "",
-      breakpoints: [],
-    };
-    this.options = Object.assign({}, this.defaultOptions, options);
-    this.init();
-  }
+    },
+  };
 
-  init() {
-    this.truncateElements = document.querySelectorAll(".cuttr");
+  // Define an object that maps each breakpoint to the corresponding class options
+  const breakpointOptions = {
+    576: {
+      // Breakpoint for screens smaller than 576px
+      ".element1": {
+        length: 10,
+      },
+      ".element2": {
+        length: 15,
+      },
+      ".element3": {
+        length: 50,
+      },
+    },
+    992: {
+      // Breakpoint for screens smaller than 992px
+      ".element1": {
+        length: 15,
+      },
+      ".element2": {
+        length: 25,
+      },
+      ".element3": {
+        length: 80,
+      },
+    },
+    1200: {
+      // Breakpoint for screens larger than 1200px
+      ".element1": {
+        length: 20,
+      },
+      ".element2": {
+        length: 30,
+      },
+      ".element3": {
+        length: 100,
+      },
+    },
+  };
 
-    this.truncateElements.forEach((truncateElement) => {
-      let options = Object.assign(
-        {},
-        this.options,
-        this.getBreakpointOptions(truncateElement)
-      );
+  // Function to apply the appropriate options to each element based on the current viewport width
+  function applyOptions() {
+    const viewportWidth = $(window).width();
+    let options = {};
 
-      truncateElement.cuttr = new Cuttr(truncateElement, options);
+    // Iterate through each class and merge the default options with the breakpoint-specific options
+    Object.keys(classOptions).forEach((className) => {
+      options[className] = {
+        ...classOptions[className],
+        ...breakpointOptions[viewportWidth]?.[className],
+      };
+    });
+
+    // Initialize Cuttr for each element with the appropriate options
+    Object.keys(options).forEach((className) => {
+      $(className).Cuttr(options[className]);
     });
   }
 
-  getBreakpointOptions(truncateElement) {
-    let options = {};
-    if (this.options.breakpoints.length > 0) {
-      this.options.breakpoints.forEach((breakpoint) => {
-        if (window.matchMedia(breakpoint.mediaQuery).matches) {
-          if (truncateElement.classList.contains(breakpoint.class)) {
-            options = breakpoint.options;
-          }
-        }
-      });
-    }
-    return options;
-  }
-}
+  // Initialize Cuttr with the default options for each class
+  applyOptions();
 
-let cuttrWithOptions = new CuttrWithOptions({
-  truncate: "words",
-  length: 12,
-  breakpoints: [
-    {
-      class: "cuttr-small",
-      mediaQuery: "(max-width: 576px)",
-      options: {
-        truncate: "words",
-        length: 6,
-        readMore: true,
-      },
-    },
-    {
-      class: "cuttr-medium",
-      mediaQuery: "(max-width: 768px)",
-      options: {
-        truncate: "words",
-        length: 8,
-        readMore: true,
-      },
-    },
-    {
-      class: "cuttr-large",
-      mediaQuery: "(max-width: 992px)",
-      options: {
-        truncate: "words",
-        length: 10,
-        readMore: true,
-      },
-    },
-  ],
-});
-
-let cuttrDefaultOptions = new CuttrWithOptions({
-  truncate: "words",
-  length: 12,
-  readMore: true,
-  breakpoints: [
-    {
-      mediaQuery: "(max-width: 576px)",
-      options: {
-        length: 6,
-      },
-    },
-    {
-      mediaQuery: "(max-width: 768px)",
-      options: {
-        length: 8,
-      },
-    },
-    {
-      mediaQuery: "(max-width: 992px)",
-      options: {
-        length: 10,
-      },
-    },
-  ],
+  // Re-apply the appropriate options each time the viewport width changes
+  $(window).resize(applyOptions);
 });
