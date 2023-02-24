@@ -18,7 +18,13 @@ const globalOptions = new Cuttr("", {
 function createCuttrInstance(target, options, breakpoints) {
   const instanceOptions = Object.assign({}, globalOptions.options, options);
 
-  const instance = new Cuttr(target, instanceOptions);
+  const elements = document.querySelectorAll(target);
+  if (!elements.length) {
+    console.error(`No elements found for selector: ${target}`);
+    return null;
+  }
+
+  const instance = new Cuttr(elements[0], instanceOptions);
 
   if (breakpoints) {
     for (const breakpoint in breakpoints) {
