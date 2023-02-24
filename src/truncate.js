@@ -1,3 +1,7 @@
+new Cuttr(".global-truncate", {
+  licenseKey: "2E864F64-86BB4151-AD9A08AF-B0B5C5BA",
+});
+
 $(document).ready(function () {
   // Define an object that maps each class to its truncation options
   const classOptions = {
