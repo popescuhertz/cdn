@@ -19,16 +19,52 @@ class CuttrBreakpoints {
           (bp) => (options = { ...options, ...bp.options })
         );
 
-        new Cuttr(element, options);
-        if (options.truncate === "lines") {
-          const lineHeight = parseInt(
-            window.getComputedStyle(element).lineHeight
+        const lines = element.innerHTML.split("\n");
+        const truncatedLines = lines.map((line) => {
+          return this._truncate(
+            line,
+            options.length,
+            options.ending,
+            options.truncate
           );
-          const maxHeight = lineHeight * options.lines;
-          element.style.maxHeight = `${maxHeight}px`;
-          element.style.overflow = "hidden";
-        }
+        });
+
+        element.innerHTML = truncatedLines.join("\n");
+
+        new Cuttr(element, options);
       });
+    }
+  }
+
+  _truncate(text, length, ending, truncate) {
+    if (truncate === "lines") {
+      const words = text.split(" ");
+      let truncatedText = "";
+      let line = "";
+      let i = 0;
+
+      while (i < words.length) {
+        if (line.length + words[i].length + 1 <= length) {
+          line += words[i] + " ";
+        } else {
+          truncatedText += line.trim() + ending + "\n";
+          line = words[i] + " ";
+        }
+
+        i++;
+      }
+
+      if (line.length > 0) {
+        truncatedText += line.trim() + ending + "\n";
+      }
+
+      return truncatedText.trim();
+    } else {
+      if (text.length <= length) {
+        return text;
+      } else {
+        return text.substring(0, length - ending.length) + ending;
+      }
     }
   }
 }
@@ -53,7 +89,7 @@ const cuttrClasses = [
   {
     selector: ".product-description.is-header",
     options: {
-      lines: 3,
+      lines: 2,
     },
     breakpoints: [
       {
@@ -91,13 +127,6 @@ const cuttrClasses = [
       },
     ],
   },
-  {
-    selector: ".product-description.is-truncate-lines",
-    options: {
-      truncate: "lines",
-      lines: 3,
-    },
-  },
 ];
 
 Cuttr.prototype.defaults = defaults;
@@ -108,4 +137,24 @@ for (const classObj of cuttrClasses) {
   const { selector, options, breakpoints } = classObj;
   const cuttrInstance = new CuttrBreakpoints(selector, options, breakpoints);
   cuttrInstances.push(cuttrInstance);
+}
+
+function truncateTextPerLine(text, maxLength) {
+  const lines = text.split("\n");
+  let truncatedText = "";
+
+  for (let i = 0; i < lines.length; i++) {
+    const line = lines[i];
+    if (line.length <= maxLength) {
+      truncatedText += line;
+    } else {
+      truncatedText += line.substring(0, maxLength).trim();
+    }
+
+    if (i < lines.length - 1) {
+      truncatedText += "\n";
+    }
+  }
+
+  return truncatedText;
 }
