@@ -106,10 +106,11 @@ const cuttrBreakpoints = cuttrClasses.map(
     )
 );
 
-cuttrClasses.forEach((classObj) => {
-  const cuttrInstance = new CuttrBreakpoints(
-    classObj.selector,
-    classObj.options,
-    classObj.breakpoints
-  );
+// Loop through the cuttrClasses array and create a new instance of CuttrBreakpoints for each object
+const cuttrInstances = cuttrClasses.map((classObj) => {
+  const { selector, options, breakpoints } = classObj;
+  return new CuttrBreakpoints(selector, options, breakpoints);
 });
+
+// Now you have an array of CuttrBreakpoints instances that you can use as needed
+console.log(cuttrInstances);
