@@ -43,7 +43,7 @@ const defaults = {
 
 const cuttrClasses = [
   {
-    selector: ".truncate-small",
+    selector: ".product-description.is-header",
     options: {
       length: 40,
     },
@@ -63,7 +63,7 @@ const cuttrClasses = [
     ],
   },
   {
-    selector: ".truncate-medium",
+    selector: ".product-description.is-section",
     options: {
       length: 60,
       readMore: true,
@@ -83,27 +83,6 @@ const cuttrClasses = [
       },
     ],
   },
-  {
-    selector: ".truncate-large",
-    options: {
-      length: 100,
-      readMore: true,
-    },
-    breakpoints: [
-      {
-        query: "(max-width: 480px)",
-        options: {
-          length: 60,
-        },
-      },
-      {
-        query: "(min-width: 481px) and (max-width: 768px)",
-        options: {
-          length: 85,
-        },
-      },
-    ],
-  },
 ];
 
 Cuttr.prototype.defaults = defaults;
@@ -115,5 +94,3 @@ for (const classObj of cuttrClasses) {
   const cuttrInstance = new CuttrBreakpoints(selector, options, breakpoints);
   cuttrInstances.push(cuttrInstance);
 }
-
-console.log(cuttrInstances);
