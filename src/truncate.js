@@ -24,16 +24,22 @@ const cuttrClasses = [
       readMore: true,
       readMoreText: "Read more for Class 1",
     },
-    breakpoints: {
-      "(max-width: 480px)": {
-        length: 25,
-        readMoreText: "Read more for Class 1 - Breakpoint 1",
+    breakpoints: [
+      {
+        query: "(max-width: 480px)",
+        options: {
+          length: 25,
+          readMoreText: "Read more for Class 1 - Breakpoint 1",
+        },
       },
-      "(min-width: 481px) and (max-width: 768px)": {
-        length: 35,
-        readMoreText: "Read more for Class 1 - Breakpoint 2",
+      {
+        query: "(min-width: 481px) and (max-width: 768px)",
+        options: {
+          length: 35,
+          readMoreText: "Read more for Class 1 - Breakpoint 2",
+        },
       },
-    },
+    ],
   },
   {
     selector: ".truncate-medium",
@@ -43,16 +49,22 @@ const cuttrClasses = [
       readMore: true,
       readMoreText: "Read more for Class 2",
     },
-    breakpoints: {
-      "(max-width: 480px)": {
-        length: 10,
-        readMoreText: "Read more for Class 2 - Breakpoint 1",
+    breakpoints: [
+      {
+        query: "(max-width: 480px)",
+        options: {
+          length: 10,
+          readMoreText: "Read more for Class 2 - Breakpoint 1",
+        },
       },
-      "(min-width: 481px) and (max-width: 768px)": {
-        length: 15,
-        readMoreText: "Read more for Class 2 - Breakpoint 2",
+      {
+        query: "(min-width: 481px) and (max-width: 768px)",
+        options: {
+          length: 15,
+          readMoreText: "Read more for Class 2 - Breakpoint 2",
+        },
       },
-    },
+    ],
   },
 ];
 
@@ -69,31 +81,21 @@ for (const cuttrClass of cuttrClasses) {
   cuttrInstance.classSelector = cuttrClass.selector;
   cuttrInstances.push(cuttrInstance);
 
-  for (const [breakpoint, breakpointOptions] of Object.entries(
-    cuttrClass.breakpoints
-  )) {
-    const mediaQueryList = window.matchMedia(breakpoint);
+  for (const breakpoint of cuttrClass.breakpoints) {
+    const mediaQueryList = window.matchMedia(breakpoint.query);
 
-    const updateInstance = () => {
-      cuttrInstance.updateOptionsPerClass(breakpointOptions);
+    const updateInstance = (mediaQueryList) => {
+      if (mediaQueryList.matches) {
+        cuttrInstance.updateOptionsPerClass(breakpoint.options);
+      }
     };
 
-    if (mediaQueryList.matches) {
-      updateInstance();
-    }
-
     mediaQueryList.addListener(updateInstance);
+    updateInstance(mediaQueryList);
   }
 }
 
 // Update options for each instance of Cuttr for the current breakpoint
 Cuttr.prototype.updateOptionsPerClass = function (options) {
-  if (this.classSelector) {
-    const instancesToUpdate = cuttrInstances.filter(
-      (instance) => instance.classSelector === this.classSelector
-    );
-    for (const instance of instancesToUpdate) {
-      instance.updateOptions(options);
-    }
-  }
+  this.updateOptions(options);
 };
