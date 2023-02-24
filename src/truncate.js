@@ -13,13 +13,24 @@ class CuttrBreakpoints {
       el.forEach((element) => {
         let options = { ...this.options };
         const elementBreakpoints = this.breakpoints.filter(
-          (bp) => window.matchMedia(bp.query).matches
+          (b) => b.selector === this.selector
         );
-        elementBreakpoints.forEach(
-          (bp) => (options = { ...options, ...bp.options })
-        );
+        const bp = elementBreakpoints.find((b) => b.width >= window.innerWidth);
 
-        new Cuttr(element, options);
+        if (bp && bp.options) {
+          options = { ...options, ...bp.options };
+        }
+
+        const cuttr = new Cuttr(element, options);
+        const lines = cuttr._calculateLines();
+
+        if (
+          options.truncate === "lines" &&
+          options.lines &&
+          lines > options.lines
+        ) {
+          cuttr.truncateByLines(options.lines);
+        }
       });
     }
   }
@@ -41,77 +52,19 @@ const defaults = {
   readMoreBtnAdditionalClasses: "",
 };
 
-const cuttrClasses = [
-  {
-    selector: ".product-description.is-header",
-    options: {
-      length: 40,
-    },
-    breakpoints: [
-      {
-        query: "(max-width: 480px)",
-        options: {
-          length: 20,
-        },
-      },
-      {
-        query: "(min-width: 481px) and (max-width: 768px)",
-        options: {
-          length: 30,
-        },
-      },
-    ],
-  },
+const breakpoints = [
   {
     selector: ".product-description.is-section",
+    width: 768,
     options: {
-      length: 60,
-      readMore: true,
+      truncate: "lines",
+      lines: 2,
     },
-    breakpoints: [
-      {
-        query: "(max-width: 480px)",
-        options: {
-          length: 40,
-        },
-      },
-      {
-        query: "(min-width: 481px) and (max-width: 768px)",
-        options: {
-          length: 50,
-        },
-      },
-    ],
-  },
-  {
-    selector: ".product-features.is-section",
-    options: {
-      length: 40,
-      readMore: true,
-    },
-    breakpoints: [
-      {
-        query: "(max-width: 480px)",
-        options: {
-          length: 30,
-        },
-      },
-      {
-        query: "(min-width: 481px) and (max-width: 768px)",
-        options: {
-          length: 40,
-        },
-      },
-    ],
   },
 ];
 
-Cuttr.prototype.defaults = defaults;
-
-const cuttrInstances = [];
-
-for (const classObj of cuttrClasses) {
-  const { selector, options, breakpoints } = classObj;
-  const cuttrInstance = new CuttrBreakpoints(selector, options, breakpoints);
-  cuttrInstances.push(cuttrInstance);
-}
+const cuttrBreakpoints = new CuttrBreakpoints(
+  ".my-selector",
+  defaults,
+  breakpoints
+);
