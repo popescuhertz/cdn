@@ -20,6 +20,7 @@ class CuttrBreakpoints {
         );
 
         const cuttrInstance = new Cuttr(element, options);
+
         if (options.truncate === "lines") {
           const lineHeight = parseInt(
             window.getComputedStyle(element).lineHeight
@@ -27,21 +28,10 @@ class CuttrBreakpoints {
           const maxHeight = options.lines * lineHeight;
           let truncated = false;
           while (element.scrollHeight > maxHeight) {
-            if (options.truncate === "characters") {
-              const text = element.textContent;
-              element.textContent =
-                text.slice(0, -options.length) + options.ending;
-            } else if (options.truncate === "words") {
-              const text = element.textContent;
-              const words = text.split(" ");
-              words.pop();
-              element.textContent = words.join(" ") + options.ending;
-            } else if (options.truncate === "sentences") {
-              const text = element.textContent;
-              const sentences = text.split(/[.|!|?]+/);
-              sentences.pop();
-              element.textContent = sentences.join(" ") + options.ending;
-            }
+            const text = element.textContent;
+            const words = text.split(" ");
+            words.pop();
+            element.textContent = words.join(" ") + options.ending;
             truncated = true;
           }
           if (truncated) {
@@ -76,6 +66,7 @@ const cuttrClasses = [
   {
     selector: ".product-description.is-header",
     options: {
+      truncate: "lines",
       lines: 4,
     },
     breakpoints: [
@@ -96,6 +87,7 @@ const cuttrClasses = [
   {
     selector: ".product-description.is-section",
     options: {
+      truncate: "lines",
       length: 60,
       readMore: true,
       lines: 3,
