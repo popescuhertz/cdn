@@ -64,7 +64,7 @@ const breakpoints = [
 ];
 
 const cuttrBreakpoints = new CuttrBreakpoints(
-  ".my-selector",
+  ".product-description.is-section",
   defaults,
   breakpoints
 );
