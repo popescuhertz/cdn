@@ -19,21 +19,15 @@ class CuttrBreakpoints {
           (bp) => (options = { ...options, ...bp.options })
         );
 
-        // Get the element's font size and calculate the number of characters that can fit per line
-        const fontSize = parseInt(
-          window.getComputedStyle(element).getPropertyValue("font-size")
-        );
-        const lineHeight = parseInt(
-          window.getComputedStyle(element).getPropertyValue("line-height")
-        );
-        const charsPerLine = Math.floor(element.clientWidth / fontSize);
-
-        // Update options with truncation per line settings
+        const cuttrInstance = new Cuttr(element, options);
         if (options.truncate === "lines") {
-          options.length = options.length * charsPerLine;
+          const lineHeight = parseInt(
+            window.getComputedStyle(element).lineHeight
+          );
+          const maxHeight = options.lines * lineHeight;
+          element.style.maxHeight = maxHeight + "px";
+          cuttrInstance.recalculate();
         }
-
-        new Cuttr(element, options);
       });
     }
   }
@@ -53,25 +47,26 @@ const defaults = {
   readMoreBtnTag: "button",
   readMoreBtnSelectorClass: "read-more",
   readMoreBtnAdditionalClasses: "",
+  lines: 1,
 };
 
 const cuttrClasses = [
   {
     selector: ".product-description.is-header",
     options: {
-      length: 2,
+      lines: 4,
     },
     breakpoints: [
       {
         query: "(max-width: 480px)",
         options: {
-          length: 1,
+          length: 20,
         },
       },
       {
         query: "(min-width: 481px) and (max-width: 768px)",
         options: {
-          lines: 2,
+          length: 30,
         },
       },
     ],
@@ -79,20 +74,23 @@ const cuttrClasses = [
   {
     selector: ".product-description.is-section",
     options: {
-      length: 3,
+      length: 60,
       readMore: true,
+      lines: 3,
     },
     breakpoints: [
       {
         query: "(max-width: 480px)",
         options: {
-          length: 2,
+          length: 40,
+          lines: 2,
         },
       },
       {
         query: "(min-width: 481px) and (max-width: 768px)",
         options: {
-          length: 3, // truncate to 3 lines
+          length: 50,
+          lines: 2,
         },
       },
     ],
