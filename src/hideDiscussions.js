@@ -1,17 +1,22 @@
+// Wait for the page to finish loading
 window.addEventListener("load", function () {
-  var sections = document.querySelectorAll(".section");
+  // Find all elements with class "section"
+  const sections = document.querySelectorAll(".section");
 
-  for (var i = 0; i < sections.length; i++) {
-    var section = sections[i];
-
+  // Loop over the sections
+  sections.forEach((section) => {
+    // Check if the section has a descendant with class "discussions"
     if (section.querySelector(".discussions")) {
+      // If it does, hide the section
       section.style.display = "none";
     }
-  }
+  });
 });
 
+// Listen for errors on the "embed.js" script
 document
   .querySelector('script[src*="embed.js"]')
   .addEventListener("error", function () {
-    console.error("Failed to load resource: net::ERR_NAME_NOT_RESOLVED");
+    // If an error occurs, log a message to the console
+    console.error(`Failed to load resource: ${window.location.href}`);
   });
