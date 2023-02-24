@@ -6,7 +6,23 @@ class CuttrBreakpoints {
     this._init();
   }
 
-  cuttrInstance;
+  _init() {
+    const el = document.querySelectorAll(this.selector);
+
+    if (el.length > 0) {
+      el.forEach((element) => {
+        let options = { ...this.options };
+        const elementBreakpoints = this.breakpoints.filter(
+          (bp) => window.matchMedia(bp.query).matches
+        );
+        elementBreakpoints.forEach(
+          (bp) => (options = { ...options, ...bp.options })
+        );
+
+        new Cuttr(element, options);
+      });
+    }
+  }
 }
 
 const defaults = {
@@ -23,15 +39,13 @@ const defaults = {
   readMoreBtnTag: "button",
   readMoreBtnSelectorClass: "read-more",
   readMoreBtnAdditionalClasses: "",
-  lines: 1,
 };
 
 const cuttrClasses = [
   {
     selector: ".product-description.is-header",
     options: {
-      truncate: "lines",
-      lines: 4,
+      length: 40,
     },
     breakpoints: [
       {
@@ -51,24 +65,20 @@ const cuttrClasses = [
   {
     selector: ".product-description.is-section",
     options: {
-      truncate: "lines",
       length: 60,
       readMore: true,
-      lines: 3,
     },
     breakpoints: [
       {
         query: "(max-width: 480px)",
         options: {
           length: 40,
-          lines: 2,
         },
       },
       {
         query: "(min-width: 481px) and (max-width: 768px)",
         options: {
           length: 50,
-          lines: 2,
         },
       },
     ],
