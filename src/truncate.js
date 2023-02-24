@@ -46,6 +46,7 @@ const cuttrClasses = [
     selector: ".product-description.is-header",
     options: {
       length: 40,
+      readMoreBtnPosition: "after",
     },
     breakpoints: [
       {
