@@ -20,6 +20,14 @@ class CuttrBreakpoints {
         );
 
         new Cuttr(element, options);
+        if (options.truncate === "lines") {
+          const lineHeight = parseInt(
+            window.getComputedStyle(element).lineHeight
+          );
+          const maxHeight = lineHeight * options.lines;
+          element.style.maxHeight = `${maxHeight}px`;
+          element.style.overflow = "hidden";
+        }
       });
     }
   }
@@ -45,7 +53,7 @@ const cuttrClasses = [
   {
     selector: ".product-description.is-header",
     options: {
-      length: 40,
+      lines: 3,
     },
     breakpoints: [
       {
@@ -82,6 +90,13 @@ const cuttrClasses = [
         },
       },
     ],
+  },
+  {
+    selector: ".product-description.is-truncate-lines",
+    options: {
+      truncate: "lines",
+      lines: 3,
+    },
   },
 ];
 
