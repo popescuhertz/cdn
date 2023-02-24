@@ -32,7 +32,7 @@ const defaults = {
   ending: "...",
   loadedClass: "cuttr--loaded",
   title: false,
-  readMore: false,
+  readMore: true,
   readMoreText: "Read more",
   readLessText: "Read less",
   readMoreBtnPosition: "inside",
@@ -66,7 +66,6 @@ const cuttrClasses = [
     selector: ".product-description.is-section",
     options: {
       length: 60,
-      readMore: true,
     },
     breakpoints: [
       {
@@ -87,7 +86,6 @@ const cuttrClasses = [
     selector: ".product-features.is-section",
     options: {
       length: 40,
-      readMore: true,
     },
     breakpoints: [
       {
