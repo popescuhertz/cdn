@@ -11,7 +11,7 @@ class CuttrBreakpoints {
 
     if (el.length > 0) {
       el.forEach((element) => {
-        const options = { ...this.options };
+        let options = { ...this.options };
         const elementBreakpoints = this.breakpoints.filter(
           (bp) => window.matchMedia(bp.query).matches
         );
@@ -106,4 +106,10 @@ const cuttrBreakpoints = cuttrClasses.map(
     )
 );
 
-const cuttrInstance = new CuttrBreakpoints(selector, options, breakpoints);
+cuttrClasses.forEach((classObj) => {
+  const cuttrInstance = new CuttrBreakpoints(
+    classObj.selector,
+    classObj.options,
+    classObj.breakpoints
+  );
+});
