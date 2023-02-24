@@ -155,5 +155,3 @@
     return str;
   }
 })(jQuery);
-
-$(".product-description.is-section").lineCutter(2, "...");
