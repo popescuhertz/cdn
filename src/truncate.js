@@ -1,9 +1,46 @@
-// Define global options
-const cuttrGlobalOptions = {
+class CuttrBreakpoints {
+  constructor(selector, options = {}, breakpoints = []) {
+    this.selector = selector;
+    this.options = { ...defaults, ...options };
+    this.breakpoints = breakpoints;
+    this._init();
+  }
+
+  _init() {
+    const el = document.querySelectorAll(this.selector);
+
+    if (el.length > 0) {
+      el.forEach((element) => {
+        const options = { ...this.options };
+        const elementBreakpoints = this.breakpoints.filter(
+          (bp) => window.matchMedia(bp.query).matches
+        );
+        elementBreakpoints.forEach(
+          (bp) => (options = { ...options, ...bp.options })
+        );
+
+        new Cuttr(element, options);
+      });
+    }
+  }
+}
+
+const defaults = {
   licenseKey: "2E864F64-86BB4151-AD9A08AF-B0B5C5BA",
+  truncate: "characters",
+  length: 100,
+  ending: "...",
+  loadedClass: "cuttr--loaded",
+  title: false,
+  readMore: false,
+  readMoreText: "Read more",
+  readLessText: "Read less",
+  readMoreBtnPosition: "after",
+  readMoreBtnTag: "button",
+  readMoreBtnSelectorClass: "cuttr__readmore",
+  readMoreBtnAdditionalClasses: "",
 };
 
-// Define classes with their options and breakpoints
 const cuttrClasses = [
   {
     selector: ".truncate-small",
@@ -56,37 +93,17 @@ const cuttrClasses = [
   },
 ];
 
-// Loop through classes and initialize Cuttr instances
-for (const cuttrClass of cuttrClasses) {
-  const { selector, options, breakpoints } = cuttrClass;
+// Set global options
+Cuttr.prototype.defaults = defaults;
 
-  // Merge class options with global options
-  const mergedOptions = Object.assign({}, cuttrGlobalOptions, options);
+// Initialize CuttrBreakpoints instances
+const cuttrBreakpoints = cuttrClasses.map(
+  (classObj) =>
+    new CuttrBreakpoints(
+      classObj.selector,
+      classObj.options,
+      classObj.breakpoints
+    )
+);
 
-  // Initialize Cuttr instance with class options
-  let cuttrInstance = new Cuttr(selector, mergedOptions);
-
-  // Loop through breakpoints and set options for each breakpoint
-  for (const breakpoint of breakpoints) {
-    const { query, options: breakpointOptions } = breakpoint;
-
-    // Merge breakpoint options with class and global options
-    const mergedBreakpointOptions = Object.assign(
-      {},
-      mergedOptions,
-      breakpointOptions
-    );
-
-    // Add breakpoint event listener to update options
-    const breakpointListener = function (event) {
-      if (event.matches) {
-        cuttrInstance.setOptions(mergedBreakpointOptions);
-      } else {
-        cuttrInstance.setOptions(mergedOptions);
-      }
-    };
-    const mediaQuery = window.matchMedia(query);
-    mediaQuery.addListener(breakpointListener);
-    breakpointListener(mediaQuery);
-  }
-}
+const cuttrInstance = new CuttrBreakpoints(selector, options, breakpoints);
