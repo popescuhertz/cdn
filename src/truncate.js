@@ -27,10 +27,21 @@ class CuttrBreakpoints {
           const maxHeight = options.lines * lineHeight;
           let truncated = false;
           while (element.scrollHeight > maxHeight) {
-            const text = element.textContent;
-            const words = text.split(" ");
-            words.pop();
-            element.textContent = words.join(" ") + options.ending;
+            if (options.truncate === "characters") {
+              const text = element.textContent;
+              element.textContent =
+                text.slice(0, -options.length) + options.ending;
+            } else if (options.truncate === "words") {
+              const text = element.textContent;
+              const words = text.split(" ");
+              words.pop();
+              element.textContent = words.join(" ") + options.ending;
+            } else if (options.truncate === "sentences") {
+              const text = element.textContent;
+              const sentences = text.split(/[.|!|?]+/);
+              sentences.pop();
+              element.textContent = sentences.join(" ") + options.ending;
+            }
             truncated = true;
           }
           if (truncated) {
