@@ -1,5 +1,5 @@
-// global options
-Cuttr.defaults = {
+// Set global options
+Cuttr.prototype.defaults = {
   licenseKey: "2E864F64-86BB4151-AD9A08AF-B0B5C5BA",
   truncate: "characters",
   length: 100,
@@ -15,73 +15,75 @@ Cuttr.defaults = {
   readMoreBtnAdditionalClasses: "",
 };
 
-// class-specific options
-const cuttrOptions = [
+// Define classes with their options and breakpoints
+const cuttrClasses = [
   {
     selector: ".truncate-small",
     options: {
       length: 50,
       readMore: true,
+      readMoreText: "Read more for Class 1",
     },
-    breakpoints: [
-      {
-        width: 768,
-        options: {
-          length: 30,
-        },
+    breakpoints: {
+      "(max-width: 480px)": {
+        length: 25,
+        readMoreText: "Read more for Class 1 - Breakpoint 1",
       },
-      {
-        width: 1024,
-        options: {
-          length: 20,
-        },
+      "(min-width: 481px) and (max-width: 768px)": {
+        length: 35,
+        readMoreText: "Read more for Class 1 - Breakpoint 2",
       },
-    ],
+    },
   },
   {
     selector: ".truncate-medium",
     options: {
       truncate: "words",
-      length: 15,
+      length: 20,
+      readMore: true,
+      readMoreText: "Read more for Class 2",
     },
-    breakpoints: [
-      {
-        width: 768,
-        options: {
-          length: 10,
-        },
+    breakpoints: {
+      "(max-width: 480px)": {
+        length: 10,
+        readMoreText: "Read more for Class 2 - Breakpoint 1",
       },
-      {
-        width: 1024,
-        options: {
-          length: 5,
-        },
+      "(min-width: 481px) and (max-width: 768px)": {
+        length: 15,
+        readMoreText: "Read more for Class 2 - Breakpoint 2",
       },
-    ],
+    },
   },
 ];
 
-// initialize Cuttr.js for each element with class-specific options and breakpoints
-cuttrOptions.forEach(function (option) {
-  const element = document.querySelector(option.selector);
-  const options = Object.assign({}, Cuttr.defaults, option.options);
-  const breakpoints = option.breakpoints || [];
-
+// Initialize Cuttr instances with class options and breakpoints
+for (const cuttrClass of cuttrClasses) {
+  const options = Object.assign(
+    {},
+    Cuttr.prototype.defaults,
+    cuttrClass.options
+  );
+  const element = document.querySelector(cuttrClass.selector);
   const cuttrInstance = new Cuttr(element, options);
 
-  // add breakpoint-specific options
-  breakpoints.forEach(function (breakpoint) {
-    const mediaQuery = window.matchMedia(`(max-width: ${breakpoint.width}px)`);
-    const listener = function () {
-      const breakpointOptions = Object.assign({}, options, breakpoint.options);
-      cuttrInstance.setOptions(breakpointOptions);
+  for (const [breakpoint, breakpointOptions] of Object.entries(
+    cuttrClass.breakpoints
+  )) {
+    const mediaQueryList = window.matchMedia(breakpoint);
+
+    const updateInstance = () => {
+      const optionsWithBreakpoints = Object.assign(
+        {},
+        options,
+        breakpointOptions
+      );
+      cuttrInstance.updateOptions(optionsWithBreakpoints);
     };
 
-    mediaQuery.addListener(listener);
-
-    // immediately apply breakpoint-specific options if the media query is currently matched
-    if (mediaQuery.matches) {
-      listener();
+    if (mediaQueryList.matches) {
+      updateInstance();
     }
-  });
-});
+
+    mediaQueryList.addListener(updateInstance);
+  }
+}
