@@ -57,6 +57,7 @@ const cuttrClasses = [
 ];
 
 // Initialize Cuttr instances with class options and breakpoints
+const cuttrInstances = [];
 for (const cuttrClass of cuttrClasses) {
   const options = Object.assign(
     {},
@@ -65,6 +66,8 @@ for (const cuttrClass of cuttrClasses) {
   );
   const element = document.querySelector(cuttrClass.selector);
   const cuttrInstance = new Cuttr(element, options);
+  cuttrInstance.classSelector = cuttrClass.selector;
+  cuttrInstances.push(cuttrInstance);
 
   for (const [breakpoint, breakpointOptions] of Object.entries(
     cuttrClass.breakpoints
@@ -72,12 +75,7 @@ for (const cuttrClass of cuttrClasses) {
     const mediaQueryList = window.matchMedia(breakpoint);
 
     const updateInstance = () => {
-      const optionsWithBreakpoints = Object.assign(
-        {},
-        options,
-        breakpointOptions
-      );
-      cuttrInstance.updateOptions(optionsWithBreakpoints);
+      cuttrInstance.updateOptionsPerClass(breakpointOptions);
     };
 
     if (mediaQueryList.matches) {
@@ -87,3 +85,15 @@ for (const cuttrClass of cuttrClasses) {
     mediaQueryList.addListener(updateInstance);
   }
 }
+
+// Update options for each instance of Cuttr for the current breakpoint
+Cuttr.prototype.updateOptionsPerClass = function (options) {
+  if (this.classSelector) {
+    const instancesToUpdate = cuttrInstances.filter(
+      (instance) => instance.classSelector === this.classSelector
+    );
+    for (const instance of instancesToUpdate) {
+      instance.updateOptions(options);
+    }
+  }
+};
