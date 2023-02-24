@@ -1,5 +1,5 @@
-// Set global options
-Cuttr.prototype.defaults = {
+// Global defaults
+const defaults = {
   licenseKey: "2E864F64-86BB4151-AD9A08AF-B0B5C5BA",
   truncate: "characters",
   length: 100,
@@ -24,16 +24,22 @@ const cuttrClasses = [
       readMore: true,
       readMoreText: "Read more for Class 1",
     },
-    breakpoints: {
-      "(max-width: 480px)": {
-        length: 25,
-        readMoreText: "Read more for Class 1 - Breakpoint 1",
+    breakpoints: [
+      {
+        query: "(max-width: 480px)",
+        options: {
+          length: 25,
+          readMoreText: "Read more for Class 1 - Breakpoint 1",
+        },
       },
-      "(min-width: 481px) and (max-width: 768px)": {
-        length: 35,
-        readMoreText: "Read more for Class 1 - Breakpoint 2",
+      {
+        query: "(min-width: 481px) and (max-width: 768px)",
+        options: {
+          length: 35,
+          readMoreText: "Read more for Class 1 - Breakpoint 2",
+        },
       },
-    },
+    ],
   },
   {
     selector: ".truncate-medium",
@@ -43,60 +49,58 @@ const cuttrClasses = [
       readMore: true,
       readMoreText: "Read more for Class 2",
     },
-    breakpoints: {
-      "(max-width: 480px)": {
-        length: 10,
-        readMoreText: "Read more for Class 2 - Breakpoint 1",
+    breakpoints: [
+      {
+        query: "(max-width: 480px)",
+        options: {
+          length: 10,
+          readMoreText: "Read more for Class 2 - Breakpoint 1",
+        },
       },
-      "(min-width: 481px) and (max-width: 768px)": {
-        length: 15,
-        readMoreText: "Read more for Class 2 - Breakpoint 2",
+      {
+        query: "(min-width: 481px) and (max-width: 768px)",
+        options: {
+          length: 15,
+          readMoreText: "Read more for Class 2 - Breakpoint 2",
+        },
       },
-    },
+    ],
   },
 ];
 
-// Initialize Cuttr instances with class options and breakpoints
-const cuttrInstances = [];
-for (const cuttrClass of cuttrClasses) {
-  const options = Object.assign(
-    {},
-    Cuttr.prototype.defaults,
-    cuttrClass.options
-  );
-  const element = document.querySelector(cuttrClass.selector);
-  const cuttrInstance = new Cuttr(element, options);
-  cuttrInstance.classSelector = cuttrClass.selector;
-  cuttrInstances.push(cuttrInstance);
+// Iterate over classes to initialize Cuttr on them
+for (let i = 0; i < cuttrClasses.length; i++) {
+  const classInfo = cuttrClasses[i];
 
-  for (const [breakpoint, breakpointOptions] of Object.entries(
-    cuttrClass.breakpoints
-  )) {
-    const mediaQueryList = window.matchMedia(breakpoint);
+  // Merge class options with global defaults
+  const options = Object.assign({}, defaults, classInfo.options);
 
-    const updateInstance = () => {
-      cuttrInstance.updateOptionsPerClass.call(
-        cuttrInstance,
-        breakpointOptions
-      );
-    };
+  // Create new instance of Cuttr for the class selector
+  const elements = document.querySelectorAll(classInfo.selector);
+  for (let j = 0; j < elements.length; j++) {
+    const element = elements[j];
 
-    if (mediaQueryList.matches) {
-      updateInstance();
-    }
+    // Add breakpoints to options
+    const bpOptions = getBreakpointOptions(classInfo.breakpoints);
+    Object.assign(options, bpOptions);
 
-    mediaQueryList.addListener(updateInstance);
+    // Initialize Cuttr instance on element with options
+    const cuttr = new Cuttr(element, options);
   }
 }
 
-// Update options for each instance of Cuttr for the current breakpoint
-Cuttr.prototype.updateOptionsPerClass = function (options) {
-  if (this.classSelector) {
-    const instancesToUpdate = cuttrInstances.filter(
-      (instance) => instance.classSelector === this.classSelector
-    );
-    for (const instance of instancesToUpdate) {
-      instance.updateOptions(options);
+// Get breakpoint options for the current screen size
+function getBreakpointOptions(breakpoints) {
+  const bpOptions = {};
+
+  for (let i = 0; i < breakpoints.length; i++) {
+    const breakpoint = breakpoints[i];
+    const mql = window.matchMedia(breakpoint.query);
+
+    if (mql.matches) {
+      Object.assign(bpOptions, breakpoint.options);
     }
   }
-};
+
+  return bpOptions;
+}
