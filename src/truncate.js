@@ -1,6 +1,6 @@
 const globalOptions = new Cuttr("", {
   // global options here
-  licenseKey: "YOUR_KEY_HERE",
+  licenseKey: "2E864F64-86BB4151-AD9A08AF-B0B5C5BA",
   truncate: "characters",
   length: 100,
   ending: "...",
