@@ -83,6 +83,27 @@ const cuttrClasses = [
       },
     ],
   },
+  {
+    selector: ".product-features.is-section",
+    options: {
+      length: 40,
+      readMore: true,
+    },
+    breakpoints: [
+      {
+        query: "(max-width: 480px)",
+        options: {
+          length: 30,
+        },
+      },
+      {
+        query: "(min-width: 481px) and (max-width: 768px)",
+        options: {
+          length: 40,
+        },
+      },
+    ],
+  },
 ];
 
 Cuttr.prototype.defaults = defaults;
