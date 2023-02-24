@@ -6,43 +6,7 @@ class CuttrBreakpoints {
     this._init();
   }
 
-  _init() {
-    const el = document.querySelectorAll(this.selector);
-
-    if (el.length > 0) {
-      el.forEach((element) => {
-        let options = { ...this.options };
-        const elementBreakpoints = this.breakpoints.filter(
-          (bp) => window.matchMedia(bp.query).matches
-        );
-        elementBreakpoints.forEach(
-          (bp) => (options = { ...options, ...bp.options })
-        );
-
-        const cuttrInstance = new Cuttr(element, options);
-
-        if (options.truncate === "lines") {
-          const lineHeight = parseInt(
-            window.getComputedStyle(element).lineHeight
-          );
-          const maxHeight = options.lines * lineHeight;
-          let truncated = false;
-          while (element.scrollHeight > maxHeight) {
-            const text = element.textContent;
-            const words = text.split(" ");
-            words.pop();
-            element.textContent = words.join(" ") + options.ending;
-            truncated = true;
-          }
-          if (truncated) {
-            element.style.height = maxHeight + "px";
-            element.style.overflow = "hidden";
-            cuttrInstance.recalculate();
-          }
-        }
-      });
-    }
-  }
+  cuttrInstance;
 }
 
 const defaults = {
