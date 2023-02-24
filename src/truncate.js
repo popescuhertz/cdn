@@ -1,51 +1,57 @@
-$(document).ready(function () {
-  // Default options for all elements
-  var defaultOptions = {
-    truncate: "words",
-    length: 12,
-  };
+// define the options for each breakpoint and instance
+const options = [
+  {
+    breakpoint: "(max-width: 768px)",
+    instances: [
+      {
+        selector: ".element-b",
+        truncate: "words",
+        length: 10,
+      },
+      {
+        selector: ".element-a",
+        truncate: "characters",
+        length: 50,
+      },
+    ],
+  },
+  {
+    breakpoint: "(min-width: 769px)",
+    instances: [
+      {
+        selector: ".truncate-1",
+        truncate: "words",
+        length: 20,
+      },
+      {
+        selector: ".truncate-2",
+        truncate: "characters",
+        length: 100,
+      },
+    ],
+  },
+];
 
-  // Truncation options for different breakpoints and classes
-  var options = [
-    {
-      class: ".element-a",
-      breakpoints: [
-        { width: 768, options: { truncate: "words", length: 8 } },
-        { width: 992, options: { truncate: "characters", length: 50 } },
-      ],
-    },
-    {
-      class: ".element-b",
-      breakpoints: [
-        {
-          width: 768,
-          options: {
-            truncate: "words",
-            length: 6,
-          },
-        },
-        {
-          width: 992,
-          options: {
-            truncate: "characters",
-            length: 30,
-          },
-        },
-      ],
-    },
-  ];
-
-  // Loop through each set of options
-  options.forEach(function (option) {
-    // Loop through each breakpoint for this class
-    option.breakpoints.forEach(function (breakpoint) {
-      // Apply the options for this breakpoint to the element
-      var optionsForBreakpoint = $.extend(
-        {},
-        defaultOptions,
-        breakpoint.options
-      );
-      $(option.class).responsiveCuttr(optionsForBreakpoint, breakpoint.width);
+// create a function to initialize Cuttr instances for each breakpoint and instance
+function initCuttr() {
+  options.forEach((option) => {
+    const mediaQuery = window.matchMedia(option.breakpoint);
+    const instances = option.instances.map((instance) => {
+      const element = document.querySelector(instance.selector);
+      return new Cuttr(element, instance);
+    });
+    // add listener to update instances when breakpoint changes
+    mediaQuery.addListener((event) => {
+      if (event.matches) {
+        instances.forEach((instance) => {
+          instance.destroy();
+          const element = document.querySelector(instance.selector);
+          new Cuttr(element, instance);
+        });
+      }
     });
   });
-});
+}
+
+// call the function to initialize Cuttr instances on page load
+initCuttr();
