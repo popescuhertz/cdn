@@ -15,6 +15,7 @@ const classBreakpoints = {
 
 // Define the default options
 const defaultOptions = {
+  licenseKey: "2E864F64-86BB4151-AD9A08AF-B0B5C5BA",
   truncate: "words",
   length: 12,
 };
