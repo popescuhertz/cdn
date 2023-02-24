@@ -1,63 +1,68 @@
-// Define global options
-Cuttr.setGlobalOptions({
-  licenseKey: "2E864F64-86BB4151-AD9A08AF-B0B5C5BA",
+const globalOptions = new Cuttr("", {
+  // global options here
+  licenseKey: "YOUR_KEY_HERE",
+  truncate: "characters",
+  length: 100,
+  ending: "...",
+  loadedClass: "cuttr--loaded",
+  title: false,
+  readMore: false,
+  readMoreText: "Read more",
+  readLessText: "Read less",
+  readMoreBtnPosition: "after",
+  readMoreBtnTag: "button",
+  readMoreBtnSelectorClass: "cuttr__readmore",
+  readMoreBtnAdditionalClasses: "",
 });
 
-// Define options for each class and breakpoint
-const options = [
+function createCuttrInstance(target, options, breakpoints) {
+  const instanceOptions = Object.assign({}, globalOptions.options, options);
+
+  const instance = new Cuttr(target, instanceOptions);
+
+  if (breakpoints) {
+    for (const breakpoint in breakpoints) {
+      instance.addBreakpoint(breakpoint, breakpoints[breakpoint]);
+    }
+  }
+
+  return instance;
+}
+
+const truncateSmall = createCuttrInstance(
+  ".truncate-small",
   {
-    class: ".truncate-1",
-    breakpoints: [
-      { width: 768, options: { truncate: "words", length: 20 } },
-      { width: 992, options: { truncate: "words", length: 30 } },
-      { width: 1200, options: { truncate: "words", length: 40 } },
-    ],
-    defaultOptions: {
-      truncate: "words",
-      length: 10,
-    },
+    truncate: "words",
+    length: 12,
+    readMore: true,
   },
   {
-    class: ".truncate-2",
-    breakpoints: [
-      {
-        width: 768,
-        options: {
-          truncate: "characters",
-          length: 100,
-        },
-      },
-      {
-        width: 992,
-        options: {
-          truncate: "characters",
-          length: 150,
-        },
-      },
-      {
-        width: 1200,
-        options: {
-          truncate: "characters",
-          length: 200,
-        },
-      },
-    ],
-    defaultOptions: {
+    "768px": {
       truncate: "characters",
-      length: 50,
+      length: 100,
     },
+    "1024px": {
+      truncate: "sentences",
+      length: 2,
+    },
+  }
+);
+
+const truncateMedium = createCuttrInstance(
+  ".truncate-medium",
+  {
+    truncate: "words",
+    length: 121,
+    readMore: true,
   },
-];
-
-// Initialize Cuttr for each class and breakpoint
-options.forEach((option) => {
-  const { class: className, breakpoints, defaultOptions } = option;
-
-  const instance = new Cuttr(className, defaultOptions);
-
-  breakpoints.forEach((breakpoint) => {
-    const { width, options } = breakpoint;
-
-    instance.addBreakpoint(width, options);
-  });
-});
+  {
+    "768px": {
+      truncate: "characters",
+      length: 150,
+    },
+    "1024px": {
+      truncate: "sentences",
+      length: 20,
+    },
+  }
+);
