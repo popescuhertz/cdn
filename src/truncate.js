@@ -19,6 +19,20 @@ class CuttrBreakpoints {
           (bp) => (options = { ...options, ...bp.options })
         );
 
+        // Get the element's font size and calculate the number of characters that can fit per line
+        const fontSize = parseInt(
+          window.getComputedStyle(element).getPropertyValue("font-size")
+        );
+        const lineHeight = parseInt(
+          window.getComputedStyle(element).getPropertyValue("line-height")
+        );
+        const charsPerLine = Math.floor(element.clientWidth / fontSize);
+
+        // Update options with truncation per line settings
+        if (options.truncate === "lines") {
+          options.length = options.length * charsPerLine;
+        }
+
         new Cuttr(element, options);
       });
     }
@@ -45,19 +59,19 @@ const cuttrClasses = [
   {
     selector: ".product-description.is-header",
     options: {
-      length: 40,
+      length: 2,
     },
     breakpoints: [
       {
         query: "(max-width: 480px)",
         options: {
-          length: 20,
+          length: 1,
         },
       },
       {
         query: "(min-width: 481px) and (max-width: 768px)",
         options: {
-          length: 30,
+          lines: 2,
         },
       },
     ],
@@ -65,20 +79,20 @@ const cuttrClasses = [
   {
     selector: ".product-description.is-section",
     options: {
-      length: 60,
+      length: 3,
       readMore: true,
     },
     breakpoints: [
       {
         query: "(max-width: 480px)",
         options: {
-          length: 40,
+          length: 2,
         },
       },
       {
         query: "(min-width: 481px) and (max-width: 768px)",
         options: {
-          length: 50,
+          length: 3, // truncate to 3 lines
         },
       },
     ],
