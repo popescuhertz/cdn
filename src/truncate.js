@@ -1,50 +1,51 @@
-// Define the class names and breakpoints
-const classBreakpoints = {
-  ".class1": {
-    sm: 10,
-    md: 20,
-    lg: 30,
-  },
-  ".class2": {
-    sm: 50,
-    md: 100,
-    lg: 150,
-  },
-  // add more classes here
+// Define the breakpoints and their options
+const breakpointOptions = {
+  ".class1": [
+    { breakpoint: 480, options: { truncate: "words", length: 10 } },
+    { breakpoint: 768, options: { truncate: "words", length: 20 } },
+    { breakpoint: 1024, options: { truncate: "words", length: 30 } },
+  ],
+  ".class2": [
+    { breakpoint: 480, options: { truncate: "words", length: 5 } },
+    { breakpoint: 768, options: { truncate: "words", length: 10 } },
+    { breakpoint: 1024, options: { truncate: "words", length: 15 } },
+  ],
 };
 
-// Define the default options
-const defaultOptions = {
-  licenseKey: "2E864F64-86BB4151-AD9A08AF-B0B5C5BA",
-  truncate: "words",
-  length: 12,
-};
+// Loop through each breakpointOptions key-value pair and create Cuttr instances for each breakpoint
+Object.entries(breakpointOptions).forEach(([selector, optionsArray]) => {
+  const element = document.querySelector(selector);
+  if (element) {
+    const cuttrInstances = optionsArray.map(({ breakpoint, options }) => {
+      return window.innerWidth < breakpoint
+        ? new Cuttr(element, options)
+        : null;
+    });
+    // Store the Cuttr instances in the element's dataset for later reference
+    element.dataset.cuttrInstances = JSON.stringify(cuttrInstances);
+  }
+});
 
-// Initialize Cuttr for each class
-Object.keys(classBreakpoints).forEach((className) => {
-  const options = Object.assign(
-    {},
-    defaultOptions,
-    classBreakpoints[className]["sm"]
-  );
-  const truncateElement = new Cuttr(className, options);
-
-  // Update the options on window resize
-  window.addEventListener("resize", () => {
-    const screenWidth = window.innerWidth;
-    let breakpoint;
-    if (screenWidth >= 992) {
-      breakpoint = "lg";
-    } else if (screenWidth >= 768) {
-      breakpoint = "md";
-    } else {
-      breakpoint = "sm";
+// Add a resize event listener to update the Cuttr instances when the window is resized
+window.addEventListener("resize", () => {
+  Object.entries(breakpointOptions).forEach(([selector, optionsArray]) => {
+    const element = document.querySelector(selector);
+    if (element) {
+      const cuttrInstances = JSON.parse(element.dataset.cuttrInstances);
+      cuttrInstances.forEach((instance, i) => {
+        if (instance) {
+          const { breakpoint, options } = optionsArray[i];
+          if (window.innerWidth < breakpoint) {
+            if (!instance.isInitialized()) {
+              instance.initialize(options);
+            }
+          } else {
+            if (instance.isInitialized()) {
+              instance.destroy();
+            }
+          }
+        }
+      });
     }
-    const options = Object.assign(
-      {},
-      defaultOptions,
-      classBreakpoints[className][breakpoint]
-    );
-    truncateElement.updateOptions(options);
   });
 });
