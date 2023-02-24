@@ -1,5 +1,5 @@
-const globalOptions = new Cuttr("", {
-  // global options here
+// global options
+Cuttr.defaults = {
   licenseKey: "2E864F64-86BB4151-AD9A08AF-B0B5C5BA",
   truncate: "characters",
   length: 100,
@@ -13,62 +13,75 @@ const globalOptions = new Cuttr("", {
   readMoreBtnTag: "button",
   readMoreBtnSelectorClass: "cuttr__readmore",
   readMoreBtnAdditionalClasses: "",
-});
+};
 
-function createCuttrInstance(target, options, breakpoints) {
-  const instanceOptions = Object.assign({}, globalOptions.options, options);
+// class-specific options
+const cuttrOptions = [
+  {
+    selector: ".truncate-small",
+    options: {
+      length: 50,
+      readMore: true,
+    },
+    breakpoints: [
+      {
+        width: 768,
+        options: {
+          length: 30,
+        },
+      },
+      {
+        width: 1024,
+        options: {
+          length: 20,
+        },
+      },
+    ],
+  },
+  {
+    selector: ".truncate-medium",
+    options: {
+      truncate: "words",
+      length: 15,
+    },
+    breakpoints: [
+      {
+        width: 768,
+        options: {
+          length: 10,
+        },
+      },
+      {
+        width: 1024,
+        options: {
+          length: 5,
+        },
+      },
+    ],
+  },
+];
 
-  const elements = document.querySelectorAll(target);
-  if (!elements.length) {
-    console.error(`No elements found for selector: ${target}`);
-    return null;
-  }
+// initialize Cuttr.js for each element with class-specific options and breakpoints
+cuttrOptions.forEach(function (option) {
+  const element = document.querySelector(option.selector);
+  const options = Object.assign({}, Cuttr.defaults, option.options);
+  const breakpoints = option.breakpoints || [];
 
-  const instance = new Cuttr(elements[0], instanceOptions);
+  const cuttrInstance = new Cuttr(element, options);
 
-  if (breakpoints) {
-    for (const breakpoint in breakpoints) {
-      instance.addBreakpoint(breakpoint, breakpoints[breakpoint]);
+  // add breakpoint-specific options
+  breakpoints.forEach(function (breakpoint) {
+    const mediaQuery = window.matchMedia(`(max-width: ${breakpoint.width}px)`);
+    const listener = function () {
+      const breakpointOptions = Object.assign({}, options, breakpoint.options);
+      cuttrInstance.setOptions(breakpointOptions);
+    };
+
+    mediaQuery.addListener(listener);
+
+    // immediately apply breakpoint-specific options if the media query is currently matched
+    if (mediaQuery.matches) {
+      listener();
     }
-  }
-
-  return instance;
-}
-
-const truncateSmall = createCuttrInstance(
-  ".truncate-small",
-  {
-    truncate: "words",
-    length: 12,
-    readMore: true,
-  },
-  {
-    "768px": {
-      truncate: "characters",
-      length: 100,
-    },
-    "1024px": {
-      truncate: "sentences",
-      length: 2,
-    },
-  }
-);
-
-const truncateMedium = createCuttrInstance(
-  ".truncate-medium",
-  {
-    truncate: "words",
-    length: 121,
-    readMore: true,
-  },
-  {
-    "768px": {
-      truncate: "characters",
-      length: 150,
-    },
-    "1024px": {
-      truncate: "sentences",
-      length: 20,
-    },
-  }
-);
+  });
+});
