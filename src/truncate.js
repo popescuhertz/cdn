@@ -45,7 +45,7 @@ const cuttrClasses = [
   {
     selector: ".truncate-small",
     options: {
-      length: 50,
+      length: 500,
       readMore: true,
       readMoreText: "Read more for Class 1",
     },
@@ -53,14 +53,14 @@ const cuttrClasses = [
       {
         query: "(max-width: 480px)",
         options: {
-          length: 25,
+          length: 250,
           readMoreText: "Read more for Class 1 - Breakpoint 1",
         },
       },
       {
         query: "(min-width: 481px) and (max-width: 768px)",
         options: {
-          length: 35,
+          length: 350,
           readMoreText: "Read more for Class 1 - Breakpoint 2",
         },
       },
