@@ -19,12 +19,12 @@ const options = [
     breakpoint: "(min-width: 769px)",
     instances: [
       {
-        selector: ".truncate-1",
+        selector: ".element-b",
         truncate: "words",
         length: 20,
       },
       {
-        selector: ".truncate-2",
+        selector: ".element-a",
         truncate: "characters",
         length: 100,
       },
