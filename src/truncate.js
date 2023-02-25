@@ -46,7 +46,6 @@ const cuttrClasses = [
     selector: ".section-container.is-header",
     options: {
       length: 40,
-      readMoreBtnPosition: "after",
     },
     breakpoints: [
       {
