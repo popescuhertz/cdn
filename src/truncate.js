@@ -84,7 +84,7 @@ const cuttrClasses = [
     ],
   },
   {
-    selector: ".section-container.is-features",
+    selector: ".section-container.is-specs",
     options: {
       length: 40,
     },
