@@ -11,5 +11,5 @@ window.addEventListener("load", function () {
 document
   .querySelector('script[src*="embed.js"]')
   .addEventListener("error", function () {
-    console.error(`Failed to load resource: ${window.location.href}`);
+    console.log(`Failed to load resource: ${window.location.href}`);
   });
