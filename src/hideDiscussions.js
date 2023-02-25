@@ -14,13 +14,8 @@ if (iframe) {
     // get a reference to the iframe's document object
     const iframeDocument = iframeWindow.document;
 
-    // select the element inside the iframe and get its attribute
-    const embedState = iframeDocument
-      .querySelector("element-selector")
-      .getAttribute("data-embed-state");
-
-    // hide the section if the iframe is empty or if data-embed-state is "error"
-    if (iframeDocument.body.innerHTML.trim() === "" || embedState === "error") {
+    // check if the iframe body is empty and hide the parent section element if it is
+    if (iframeDocument.body.innerHTML.trim() === "") {
       section.style.display = "none";
     }
   });
