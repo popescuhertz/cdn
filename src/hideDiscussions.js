@@ -1,24 +1,18 @@
-// select the section element
-const section = document.querySelector(".section");
+window.addEventListener("load", function () {
+  var iframe = document.getElementById("discourse-embed-frame");
+  var section = document.querySelector(".section.is-product");
 
-// select the iframe element
-const iframe = section.querySelector("iframe");
+  if (iframe && iframe.contentWindow) {
+    iframe.contentWindow.addEventListener("DOMContentLoaded", function () {
+      var state =
+        iframe.contentDocument.documentElement.getAttribute("data-embed-state");
 
-// check if the iframe element is found
-if (iframe) {
-  // wait for the iframe to load its content
-  iframe.addEventListener("load", function () {
-    // get a reference to the iframe's window object
-    const iframeWindow = iframe.contentWindow;
-
-    // get a reference to the iframe's document object
-    const iframeDocument = iframeWindow.document;
-
-    // check if the iframe body is empty and hide the parent section element if it is
-    if (iframeDocument.body.innerHTML.trim() === "") {
-      section.style.display = "none";
-    }
-  });
-} else {
-  console.log("iframe not found");
-}
+      if (
+        state === "error" ||
+        iframe.contentDocument.body.innerHTML.trim() === ""
+      ) {
+        section.style.display = "none";
+      }
+    });
+  }
+});
