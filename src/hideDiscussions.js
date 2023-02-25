@@ -3,12 +3,14 @@ function hideSectionsWithError() {
 
   sections.forEach((section) => {
     const discussions = section.querySelectorAll(".discussions");
-    const iframe = section.querySelector("iframe");
+    const header = section.querySelector(".discussion-embed header");
+    const iframe = header ? header.querySelector("iframe") : null;
 
     if (
       discussions.length > 0 &&
       iframe &&
-      iframe.dataset.embedState === "error"
+      iframe.contentDocument.querySelector("html > body > header").dataset
+        .embedState === "error"
     ) {
       section.style.display = "none";
     } else {
