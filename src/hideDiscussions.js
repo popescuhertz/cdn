@@ -1,5 +1,8 @@
+// select the section element
+const section = document.querySelector(".section");
+
 // select the iframe element
-const iframe = document.querySelector(".section iframe");
+const iframe = section.querySelector("iframe");
 
 // wait for the iframe to load its content
 iframe.addEventListener("load", function () {
@@ -14,8 +17,8 @@ iframe.addEventListener("load", function () {
     .querySelector("element-selector")
     .getAttribute("data-embed-state");
 
-  // hide the iframe if data-embed-state is "error"
-  if (embedState === "error") {
-    iframe.style.display = "none";
+  // hide the section if the iframe is empty or if data-embed-state is "error"
+  if (iframeDocument.body.innerHTML.trim() === "" || embedState === "error") {
+    section.style.display = "none";
   }
 });
