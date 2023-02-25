@@ -43,7 +43,7 @@ const defaults = {
 
 const cuttrClasses = [
   {
-    selector: ".product-description.is-header",
+    selector: ".section-container.is-header",
     options: {
       length: 40,
       readMoreBtnPosition: "after",
@@ -64,7 +64,7 @@ const cuttrClasses = [
     ],
   },
   {
-    selector: ".product-description.is-section",
+    selector: ".section-container.is-about",
     options: {
       length: 60,
     },
@@ -84,7 +84,7 @@ const cuttrClasses = [
     ],
   },
   {
-    selector: ".product-features.is-section",
+    selector: ".section-container.is-features",
     options: {
       length: 40,
     },
