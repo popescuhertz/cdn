@@ -1,5 +1,6 @@
 // select the iframe element
 const iframe = document.querySelector(".section iframe");
+console.log(iframe);
 
 // check the value of the data-embed-state attribute
 const embedState = iframe.getAttribute("data-embed-state");
