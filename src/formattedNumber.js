@@ -1,18 +1,17 @@
-// Get all elements with class "formatted"
-const formattedElements = document.querySelectorAll(".formatted");
-
-// Function to format numbers as needed
 function formatNumber(num) {
   if (num < 1000) {
     return num.toString();
-  } else if (num >= 1000 && num < 1000000) {
+  } else if (num >= 1000 && num < 10000) {
     return (num / 1000).toFixed(1) + "K";
-  } else {
+  } else if (num >= 10000 && num < 1000000) {
+    return Math.round(num / 1000) + "K";
+  } else if (num >= 1000000) {
     return (num / 1000000).toFixed(1) + "M";
   }
 }
 
-// Loop through all elements and format their content
+const formattedElements = document.querySelectorAll(".formatted");
+
 formattedElements.forEach((element) => {
   const originalNum = parseInt(element.textContent.trim());
 
