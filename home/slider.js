@@ -26,16 +26,6 @@ const thumbnailsSlider = new Flickity(".slider-thumbs", {
   pauseAutoPlayOnHover: true,
 });
 
-// Stop the main slider when hovering over the thumbnails
-thumbnailsSlider.on("mouseenter", () => {
-  mainSlider.stopPlayer();
-});
-
-// Resume the main slider when leaving the thumbnails
-thumbnailsSlider.on("mouseleave", () => {
-  mainSlider.playPlayer();
-});
-
 const searchBarInput = document.querySelector(".search-input");
 const searchBar = document.querySelector(".search");
 
