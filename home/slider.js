@@ -6,9 +6,7 @@ const mainSlider = new Flickity(".slider-main", {
   fade: true,
   imagesLoaded: true,
   dragThreshold: 100,
-  autoPlay: 5000,
   cellAlign: "left",
-  pauseAutoPlayOnHover: true,
 });
 
 // Initialize the thumbnails slider and link it to the main slider
@@ -23,7 +21,6 @@ const thumbnailsSlider = new Flickity(".slider-thumbs", {
   wrapAround: true,
   imagesLoaded: true,
   cellAlign: "left",
-  pauseAutoPlayOnHover: true,
 });
 
 const searchBarInput = document.querySelector(".search-input");
