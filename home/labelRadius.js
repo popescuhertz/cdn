@@ -1,5 +1,7 @@
 function setLabelBorderRadius() {
-  const elementsToRemove = document.querySelectorAll(".w-dyn-bind-empty");
+  const elementsToRemove = document.querySelectorAll(
+    ".w-dyn-bind-empty, .w-condition-invisible"
+  );
   elementsToRemove.forEach(function (element) {
     element.parentNode.removeChild(element);
   });
