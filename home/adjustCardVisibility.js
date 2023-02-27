@@ -24,8 +24,8 @@ function adjustCardVisibility() {
       ],
     },
     {
-      className: ".grid.is-vertical-cards.has-background",
-      cardClassName: ".card.is-vertical.has-background",
+      className: ".grid.is-vertical-cards.is-small-cards",
+      cardClassName: ".card.is-vertical.is-small-cards",
       maxRows: 1,
       breakpoints: [
         {
