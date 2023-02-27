@@ -1,4 +1,9 @@
 function setLabelBorderRadius() {
+  const elementsToRemove = document.querySelectorAll(".w-dyn-bind-empty");
+  elementsToRemove.forEach(function (element) {
+    element.parentNode.removeChild(element);
+  });
+
   const labels = document.querySelectorAll(".card-label");
 
   for (let i = 0; i < labels.length; i++) {
