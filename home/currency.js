@@ -8,7 +8,7 @@ priceElements.forEach((priceElement) => {
 
 function formatPrice(price) {
   return (
-    "$ " +
+    "$" +
     price.toLocaleString("en-US", {
       minimumFractionDigits: 2,
       maximumFractionDigits: 2,
