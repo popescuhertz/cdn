@@ -34,17 +34,6 @@ function adjustCardVisibility() {
         },
       ],
     },
-    {
-      className: ".grid.is-large-cards",
-      cardClassName: ".card.is-large",
-      maxRows: 1,
-      breakpoints: [
-        {
-          breakpoint: 865,
-          maxRows: 2,
-        },
-      ],
-    },
   ];
 
   gridConfigs.forEach((config) => {
