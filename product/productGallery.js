@@ -33,7 +33,7 @@ if (flickitySlider) {
   const screenWidth = window.innerWidth;
 
   if (screenWidth >= 991) {
-    flickitySlider.style.left = "1.5rem";
+    flickitySlider.style.left = "1.45rem";
   } else {
     flickitySlider.style.left = ".875rem";
   }
